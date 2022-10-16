@@ -27,8 +27,8 @@ def main():
 
     # Données d'origine et données décorrélées
     an.view_classes(classes, extent)
-    an.view_classes(an.decorrelate_withF(classes,F ),
-                    an.Extent(array=np.matmul(extent.get_array(), vectprop1)))
+    an.view_classes(an.decorrelate_withF(classes,F ), extent)
+
 
     plt.show()
 

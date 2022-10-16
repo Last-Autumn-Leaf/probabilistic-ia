@@ -5,18 +5,19 @@ Membres statiques:
     image_list: une énumération de tous les fichiers .jpg dans le répertoire ci-dessus
     images: une matrice de toutes les images, (optionnelle, décommenter le code)
     all_images_loaded: un flag qui indique si la matrice ci-dessus contient les images ou non
-Méthodes statiques:
+Méthodes statiques: TODO JB move to helpers
     images_display: affiche quelques images identifiées en argument
     view_histogrammes: affiche les histogrammes de couleur de qq images identifiées en argument
 """
-
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import glob
 from skimage import color as skic
 from skimage import io as skiio
-
+import matplotlib.cm as cm
+import pandas as pd
 
 class ImageCollection:
     """
@@ -30,6 +31,7 @@ class ImageCollection:
     # Filtrer pour juste garder les images
     image_list = [i for i in image_list if '.jpg' in i]
 
+
     all_images_loaded = False
     images = []
 
@@ -40,8 +42,39 @@ class ImageCollection:
     # images = np.array([np.array(skiio.imread(image)) for image in _path])
     # all_images_loaded = True
 
+    # Custom addings :
 
-    def images_display(indexes):
+    # no use keeping in memory all the images
+
+    # we want to seperate the 3 classes :
+    coast_id=[]
+    forest_id=[]
+    street_id=[]
+    for i,name_file in  enumerate(image_list) :
+        if "coast" in name_file :
+            coast_id.append(i)
+        elif "forest" in name_file :
+            forest_id.append(i)
+        else  :
+            street_id.append(i)
+
+    # Number of bins per color channel pour les histogrammes (et donc la quantification de niveau autres formats)
+    n_bins = 256  #
+
+    enc_repr = {'RGB': ['Red', 'Green', 'Blue'],
+                'HSV': ['Hue', 'Saturation', 'Value'],
+                'Lab': ['L', 'a', 'b']}
+    enc_classes = {'coast': coast_id,
+        'forest':forest_id,
+        'street':street_id}
+    all_classes=[k for k in enc_classes]
+    most_frequent_f = lambda x: np.argmax(np.bincount(x))
+    stats_func=[np.mean,most_frequent_f]
+    watch_var=['mean bin','predominant bin']
+    s_to_fun = {k:kk for k,kk in zip(watch_var,stats_func)}
+
+
+    def images_display(self,indexes):
         """
         fonction pour afficher les images correspondant aux indices
         indexes: indices de la liste d'image (int ou list of int)
@@ -59,50 +92,51 @@ class ImageCollection:
                 im = ImageCollection.images[i]
             else:
                 im = skiio.imread(ImageCollection.image_folder + os.sep + ImageCollection.image_list[indexes[i]])
-            ax2[i].imshow(im)
+            ax2[i].imshow(im) if len(indexes)!=1 else ax2.imshow(im)
+
+    # helper function pour rescaler le format lab
+    def rescaleHistLab(self,LabImage, n_bins):
+        """
+        Helper function
+        La représentation Lab requiert un rescaling avant d'histogrammer parce que ce sont des floats!
+        """
+        # Constantes de la représentation Lab
+        class LabCte:      # TODO JB : utiliser an.Extent?
+            min_L: int = 0
+            max_L: int = 100
+            min_ab: int = -110
+            max_ab: int = 110
+        # Création d'une image vide
+        imageLabRescale = np.zeros(LabImage.shape)
+        # Quantification de L en n_bins niveaux
+        imageLabRescale[:, :, 0] = np.round(
+            (LabImage[:, :, 0] - LabCte.min_L) * (n_bins - 1) / (
+                    LabCte.max_L - LabCte.min_L))  # L has all values between 0 and 100
+        # Quantification de a et b en n_bins niveaux
+        imageLabRescale[:, :, 1:3] = np.round(
+            (LabImage[:, :, 1:3] - LabCte.min_ab) * (n_bins - 1) / (
+                    LabCte.max_ab - LabCte.min_ab))  # a and b have all values between -110 and 110
+        return imageLabRescale
 
 
-    def view_histogrammes(indexes):
+    def view_histogrammes(self,indexes):
         """
         Affiche les histogrammes de couleur de quelques images
         indexes: int or list of int des images à afficher
         """
-
-        # helper function pour rescaler le format lab
-        def _rescaleHistLab(LabImage, n_bins):
-            """
-            Helper function
-            La représentation Lab requiert un rescaling avant d'histogrammer parce que ce sont des floats!
-            """
-            # Constantes de la représentation Lab
-            class _LabCte:      # TODO JB : utiliser an.Extent?
-                min_L: int = 0
-                max_L: int = 100
-                min_ab: int = -110
-                max_ab: int = 110
-            # Création d'une image vide
-            imageLabRescale = np.zeros(LabImage.shape)
-            # Quantification de L en n_bins niveaux
-            imageLabRescale[:, :, 0] = np.round(
-                (LabImage[:, :, 0] - _LabCte.min_L) * (n_bins - 1) / (
-                        _LabCte.max_L - _LabCte.min_L))  # L has all values between 0 and 100
-            # Quantification de a et b en n_bins niveaux
-            imageLabRescale[:, :, 1:2] = np.round(
-                (LabImage[:, :, 1:2] - _LabCte.min_ab) * (n_bins - 1) / (
-                        _LabCte.max_ab - _LabCte.min_ab))  # a and b have all values between -110 and 110
-            return imageLabRescale
-
-
         ###########################################
         # view_histogrammes starts here
         ###########################################
+        # TODO JB split calculs et view en 2 fonctions séparées
         # Pour qu'on puisse traiter 1 seule image
         if type(indexes) == int:
             indexes = [indexes]
 
         fig = plt.figure()
-        fig.suptitle('RGB,Lab,HSV', fontsize=20)
-        ax = fig.subplots(len(indexes), 3)
+        fig.suptitle('RGB,Lab', fontsize=20)
+        ax = fig.subplots(len(indexes), 2)
+        if len(indexes)==1 :
+            ax=ax[None,:]
 
         for num_images in range(len(indexes)):
             # charge une image si nécessaire
@@ -117,10 +151,10 @@ class ImageCollection:
             imageHSV = skic.rgb2hsv(imageRGB)  # TODO problématique: essayer d'autres espaces de couleur
 
             # Number of bins per color channel pour les histogrammes (et donc la quantification de niveau autres formats)
-            n_bins = 256
+            n_bins = ImageCollection.n_bins
 
             # Lab et HSV requiert un rescaling avant d'histogrammer parce que ce sont des floats au départ!
-            imageLabhist = _rescaleHistLab(imageLab, n_bins) # External rescale pour Lab
+            imageLabhist = self.rescaleHistLab(imageLab, n_bins) # External rescale pour Lab
             imageHSVhist = np.round(imageHSV * (n_bins - 1))  # HSV has all values between 0 and 100
 
             # Construction des histogrammes
@@ -158,12 +192,148 @@ class ImageCollection:
             image_name = ImageCollection.image_list[indexes[num_images]]
             #ax[num_images, 1].set_title(f'histogramme Lab de {image_name}')
 
-            # 3e histogramme
-            # TODO L1.E3 afficher les autres histogrammes de Lab ou HSV dans la 2e colonne de subplots
-            ax[num_images, 2].scatter(range(start, end), pixel_valuesHSV[0, start:end], c='red')
-            ax[num_images, 2].scatter(range(start, end), pixel_valuesHSV[1, start:end], c='green')
-            ax[num_images, 2].scatter(range(start, end), pixel_valuesHSV[2, start:end], c='blue')
-            # ax[num_images, 1].set(xlabel='pixels', ylabel='compte par valeur d\'intensité')
-            # ajouter le titre de la photo observée dans le titre de l'histogramme
+
+    def view_HSV_histogram(self,indexes,n_bins_H=6):
+        if type(indexes) == int:
+            indexes = [indexes]
+
+        fig = plt.figure()
+        fig.suptitle('HSV representation', fontsize=20)
+        ax = fig.subplots(len(indexes),4)
+        if len(indexes) ==1:
+            ax=ax[None,:]
+
+        for num_images in range(len(indexes)):
+            # charge une image si nécessaire
+            if ImageCollection.all_images_loaded:
+                imageRGB = ImageCollection.images[num_images]
+            else:
+                imageRGB = skiio.imread(
+                    ImageCollection.image_folder + os.sep + ImageCollection.image_list[indexes[num_images]])
+
+            imageHSV = skic.rgb2hsv(imageRGB)  # TODO problématique: essayer d'autres espaces de couleur
+
+            # Number of bins per color channel pour les histogrammes (et donc la quantification de niveau autres formats)
+            n_bins = self.n_bins
+
+            # Lab et HSV requiert un rescaling avant d'histogrammer parce que ce sont des floats au départ!
+            imageHSVhist = np.round(imageHSV * (n_bins - 1))  # HSV has all values between 0 and 100
+
+            imageHSVhist_2 = np.round(imageHSV * (n_bins_H - 1))
+            pixel_val_hist = np.zeros(n_bins_H)
+
+            pixel_valuesHSV = np.zeros((3, n_bins))
+            for i in range(n_bins):
+                for j in range(3):
+                    pixel_valuesHSV[j, i] = np.count_nonzero(imageHSVhist[:, :, j] == i)
+
+            for i in range(n_bins_H):
+                pixel_val_hist[ i] = np.count_nonzero(imageHSVhist_2[:, :, 0] == i)
+
+            # permet d'omettre les bins très sombres et très saturées aux bouts des histogrammes
+            skip = 5
+            start = skip
+            end = n_bins - skip
+
+            ax[num_images,0].scatter(range(start, end), pixel_valuesHSV[0, start:end],s=5, c=range(start, end),cmap='hsv')
+            hsv_colors = cm.hsv(np.linspace(0,1,n_bins_H))
+            max_bar=360
+            ax[num_images,1].bar(x=[max_bar/n_bins_H*i for i in range(n_bins_H)],height=pixel_val_hist,
+                                 align='edge',width=max_bar/n_bins_H,color=hsv_colors)
+
+            ax[num_images,2].scatter(range(start, end), pixel_valuesHSV[1, start:end],s=5, c='k') # sombre-clair
+            ax[num_images,3].scatter(range(start, end), pixel_valuesHSV[2, start:end],s=5, c='k')
             image_name = ImageCollection.image_list[indexes[num_images]]
-            # ax[num_images, 1].set_title(f'histogramme HSV de {image_name}')
+
+    def getStat(self,indexes,mode='RGB',n_bins=255):
+
+        store={i : {k:[] for k in self.watch_var}
+               for i in range(3)
+               }
+
+        if type(indexes) == int:
+            indexes = [indexes]
+        for num_images in range(len(indexes)):
+            # charge une image si nécessaire
+            if ImageCollection.all_images_loaded:
+                images = ImageCollection.images[num_images]
+            else:
+                images = skiio.imread(
+                    ImageCollection.image_folder + os.sep + ImageCollection.image_list[indexes[num_images]])
+
+            if mode =='HSV': # Do for Lab too
+                images = skic.rgb2hsv(images)
+            elif mode =='Lab': # Do for Lab too
+                images = skic.rgb2lab(images)
+                images = self.rescaleHistLab(images, n_bins)
+
+            # Lab et HSV requiert un rescaling avant d'histogrammer parce que ce sont des floats au départ!
+            images = np.round(images/np.max(images) * (n_bins - 1)).astype('int32')  # HSV has all values between 0 and 100
+            #255x255x3
+            for i in range (3):
+                current_r=images[:,:,i].reshape((256*256)) # 256x256 array
+                for k in store[i]:
+                    store[i][k].append(self.s_to_fun[k](current_r))
+
+
+        for i in range(3):
+            for k in store[i]:
+                store[i][k]=np.round(np.mean(store[i][k]),1)
+
+        return store
+
+    def DatasetInfo(self,dataset='coast',current_mode='RGB',n_bins=255,printInfo=True):
+        assert (n_bins>3)
+        current_dataset=self.enc_classes[dataset]
+        size_dataset=len(current_dataset)
+        if printInfo:
+            print("#Dataset :",size_dataset, dataset,"files")
+
+        result=self.getStat(current_dataset,current_mode,n_bins)
+        if printInfo:
+            for i,r in enumerate(self.enc_repr[current_mode]) :
+                print('\tstats value for',r,':',end='')
+                print('\t\t',*result[i].items(),sep='\n\t\t')
+            print('\tusing ',n_bins,'bins\n') # using bins the new max value become n_bins-1
+
+        return size_dataset,result
+
+    def getDatasetTable(self,current_mode='RGB',n_bins=255,watch=watch_var[0]):
+
+        data={}
+        fig, ax = plt.subplots()
+        # hide axes
+        fig.patch.set_visible(False)
+
+        #----- start for loop here
+        for c_dataset in self.all_classes :
+
+            result=self.getStat(self.enc_classes[c_dataset],current_mode,n_bins)
+            data[c_dataset]=[result[i][watch] for i in range(3)]+['']
+
+        ax.axis('off')
+        ax.axis('tight')
+        df = pd.DataFrame(data, index=self.enc_repr[current_mode] +['Color'])
+        table=ax.table(cellText=df.values, rowLabels=df.index,colLabels=df.columns, loc='center',
+                 cellLoc='center')
+        for i,c_class in enumerate(self.all_classes):
+            current_color =[x/(n_bins-1) for x in data[c_class][:3]] #normalize between[0,1]
+
+            if current_mode =='HSV':
+                #current_color=matplotlib.colors.hsv_to_rgb(current_color)
+                current_color=skic.hsv2rgb(current_color)
+            elif current_mode=='Lab':
+                current_color[0]*=100
+                for i in range(1,3):
+
+                    current_color[i]=(current_color[i]-0.5)*200
+                current_color=skic.lab2rgb(current_color)
+
+            table[(4, i)].set_facecolor(current_color)
+        ax.set_title(f"{watch}")
+
+        #-----------
+
+        fig.tight_layout()
+        fig.suptitle(f"Dataset table infor for {n_bins} bins")
+        #plt.show()
