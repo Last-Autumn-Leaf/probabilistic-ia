@@ -13,15 +13,10 @@ def main():
     IC =ImageCollection()
     idx=IC.forest_id[:5]
     #IC.getDatasetTable()
-    IC.getDatasetTable(current_mode='HSV',watch=IC.watch_var[1])
-    IC.view_HSV_histogram(idx)
-    '''IC.getDatasetTable(current_mode='HSV',n_bins=6)
-    IC.getDatasetTable(current_mode='RGB',n_bins=6)
-    IC.getDatasetTable(current_mode='Lab',n_bins=6)'''
+    IC.getDatasetTable(current_mode='Lab',n_bins=6)
 
     #IC.view_histogrammes(IC.coast_id[0])
-
-    IC.images_display(idx)
+    #IC.images_display(idx)
 
     plt.show()
 

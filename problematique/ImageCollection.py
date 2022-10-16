@@ -261,14 +261,18 @@ class ImageCollection:
                 images = skiio.imread(
                     ImageCollection.image_folder + os.sep + ImageCollection.image_list[indexes[num_images]])
 
-            if mode =='HSV': # Do for Lab too
+            if mode =='HSV':
                 images = skic.rgb2hsv(images)
-            elif mode =='Lab': # Do for Lab too
+            elif mode =='Lab':
+                # L [0,100],a,b [-127,127]
                 images = skic.rgb2lab(images)
                 images = self.rescaleHistLab(images, n_bins)
 
-            # Lab et HSV requiert un rescaling avant d'histogrammer parce que ce sont des floats au départ!
-            images = np.round(images/np.max(images) * (n_bins - 1)).astype('int32')  # HSV has all values between 0 and 100
+            if mode !='Lab' : # do we want to do this for rgb ?
+                # Lab et HSV requiert un rescaling avant d'histogrammer parce que ce sont des floats au départ!
+                images = np.round(images/np.max(images) * (n_bins - 1)).astype('int32')  # HSV has all values between 0 and 100
+            else :
+                images=images.astype('int32')
             #255x255x3
             for i in range (3):
                 current_r=images[:,:,i].reshape((256*256)) # 256x256 array
@@ -298,7 +302,7 @@ class ImageCollection:
 
         return size_dataset,result
 
-    def getDatasetTable(self,current_mode='RGB',n_bins=255,watch=watch_var[0]):
+    def getDatasetTable(self,current_mode='RGB',n_bins=255,watch=watch_var[1]):
 
         data={}
         fig, ax = plt.subplots()
@@ -324,9 +328,8 @@ class ImageCollection:
                 current_color=skic.hsv2rgb(current_color)
             elif current_mode=='Lab':
                 current_color[0]*=100
-                for i in range(1,3):
-
-                    current_color[i]=(current_color[i]-0.5)*200
+                for j in range(1,3):
+                    current_color[j]=(current_color[j]-0.5)*220
                 current_color=skic.lab2rgb(current_color)
 
             table[(4, i)].set_facecolor(current_color)
