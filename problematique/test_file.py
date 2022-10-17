@@ -9,11 +9,12 @@ from ImageCollection import ImageCollection
 
 get_n_rand = lambda sett=ImageCollection.coast_id,n=1 :random.sample(sett, n)
 def main():
-    numpy.random.seed(0)
+    np.random.seed(0)
+
 
     IC =ImageCollection()
     idx=IC.forest_id[:5]
-    IC.getDatasetScatterGraph('Lab',n_bins=256,watch = IC.watch_var[2])
+    IC.getDatasetScatterGraph('HSV',n_bins=256,watch = IC.watch_var[0])
     IC.getDatasetTable(current_mode='RGB',n_bins=256)
 
     #IC.view_histogrammes(IC.coast_id[0])
