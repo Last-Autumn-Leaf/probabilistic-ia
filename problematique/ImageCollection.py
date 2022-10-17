@@ -70,7 +70,7 @@ class ImageCollection:
     all_classes=[k for k in enc_classes]
     most_frequent_f = lambda x: np.argmax(np.bincount(x))
     stats_func=[np.mean,most_frequent_f]
-    watch_var=['mean bin','predominant bin']
+    watch_var=['mean bin','predominant bin','data']
     s_to_fun = {k:kk for k,kk in zip(watch_var,stats_func)}
 
 
@@ -192,7 +192,6 @@ class ImageCollection:
             image_name = ImageCollection.image_list[indexes[num_images]]
             #ax[num_images, 1].set_title(f'histogramme Lab de {image_name}')
 
-
     def view_HSV_histogram(self,indexes,n_bins_H=6):
         if type(indexes) == int:
             indexes = [indexes]
@@ -245,7 +244,7 @@ class ImageCollection:
             ax[num_images,3].scatter(range(start, end), pixel_valuesHSV[2, start:end],s=5, c='k')
             image_name = ImageCollection.image_list[indexes[num_images]]
 
-    def getStat(self,indexes,mode='RGB',n_bins=255):
+    def getStat(self,indexes,mode='RGB',n_bins=256):
 
         store={i : {k:[] for k in self.watch_var}
                for i in range(3)
@@ -277,12 +276,15 @@ class ImageCollection:
             for i in range (3):
                 current_r=images[:,:,i].reshape((256*256)) # 256x256 array
                 for k in store[i]:
-                    store[i][k].append(self.s_to_fun[k](current_r))
-
+                    if k != 'data':
+                        store[i][k].append(self.s_to_fun[k](current_r))
 
         for i in range(3):
+            store[i]['data']=store[i].copy()
+            del store[i]['data']['data']
             for k in store[i]:
-                store[i][k]=np.round(np.mean(store[i][k]),1)
+                if k !='data':
+                    store[i][k]=np.round(np.mean(store[i][k]),1)
 
         return store
 
@@ -302,7 +304,7 @@ class ImageCollection:
 
         return size_dataset,result
 
-    def getDatasetTable(self,current_mode='RGB',n_bins=255,watch=watch_var[1]):
+    def getDatasetTable(self,current_mode='RGB',n_bins=256,watch=watch_var[1]):
 
         data={}
         fig, ax = plt.subplots()
@@ -311,7 +313,6 @@ class ImageCollection:
 
         #----- start for loop here
         for c_dataset in self.all_classes :
-
             result=self.getStat(self.enc_classes[c_dataset],current_mode,n_bins)
             data[c_dataset]=[result[i][watch] for i in range(3)]+['']
 
@@ -340,3 +341,37 @@ class ImageCollection:
         fig.tight_layout()
         fig.suptitle(f"Dataset table infor for {n_bins} bins")
         #plt.show()
+
+    def getDatasetScatterGraph(self,current_mode='RGB',n_bins=256,watch=watch_var[1]):
+
+        colors=['blue','green','black']
+        colors={k:v for k,v in zip(self.all_classes,colors) }
+        fig, ax = plt.subplots(3)
+        fig_3d = plt.figure(figsize=(10, 10))
+        ax_3d = fig_3d.add_subplot(projection='3d')
+        # ----- start for loop here
+        for c_dataset in self.all_classes:
+            result = self.getStat(self.enc_classes[c_dataset], current_mode, n_bins)
+            data = [result[i]['data'] for i in range(3)]
+
+            ax_3d.scatter(data[0][watch],data[1][watch],data[2][watch], alpha=0.4,
+                          color=colors[c_dataset],marker='o',label=c_dataset)
+
+            for i in range(3) :
+                ax[i].scatter(data[i][watch], data[(i+1)%3][watch], alpha=0.4,color=colors[c_dataset],marker='.')
+
+        ax_3d.set_xlabel(self.enc_repr[current_mode][0])
+        ax_3d.set_ylabel(self.enc_repr[current_mode][1])
+        ax_3d.set_zlabel(self.enc_repr[current_mode][2])
+        ax_3d.legend()
+
+        for i in range(3):
+            labelx = self.enc_repr[current_mode][i]
+            labely = self.enc_repr[current_mode][(i+1)%3]
+            label=f"{current_mode[(i+1)%3]}=fct({current_mode[i]})"
+            ax[i].set_title(label)
+            ax[i].set(xlabel=labelx, ylabel=labely)
+
+        fig.suptitle(f"{current_mode} using {n_bins} watching {watch}")
+        fig.tight_layout()
+        fig_3d.suptitle(f"{current_mode} using {n_bins} watching {watch}")

@@ -12,8 +12,8 @@ def main():
 
     IC =ImageCollection()
     idx=IC.forest_id[:5]
-    #IC.getDatasetTable()
-    IC.getDatasetTable(current_mode='Lab',n_bins=6)
+    IC.getDatasetScatterGraph('RGB',n_bins=256)
+    IC.getDatasetTable(current_mode='RGB',n_bins=256)
 
     #IC.view_histogrammes(IC.coast_id[0])
     #IC.images_display(idx)
