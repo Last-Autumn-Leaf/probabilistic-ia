@@ -349,7 +349,7 @@ class ImageCollection:
 
         colors=['blue','green','black']
         colors={k:v for k,v in zip(self.all_classes,colors) }
-        fig, ax = plt.subplots(3)
+        fig, ax = plt.subplots(1,3)
         fig_3d = plt.figure(figsize=(10, 10))
         ax_3d = fig_3d.add_subplot(projection='3d')
         # ----- start for loop here
