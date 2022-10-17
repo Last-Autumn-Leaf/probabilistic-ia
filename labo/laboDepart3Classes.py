@@ -38,8 +38,8 @@ def main():
     # Données d'origine et données décorrélées
     allClasses = [TroisClasses.C1, TroisClasses.C2, TroisClasses.C3]
     # TODO L2.E1.3
-    coeffs = []
-    an.view_classes(allClasses, TroisClasses.extent)
+    coeffs = classifiers.get_borders(allClasses) #[7/12,1/3,5/6,-7/6,5/3,np.log(24),-53/12]
+    an.view_classes(allClasses, TroisClasses.extent, border_coeffs=coeffs)
 
     # TODO: move to static class?
     allDecorr = an.decorrelate(allClasses, vectprop1)
@@ -58,14 +58,14 @@ def main():
     ndonnees = 5000
     donneesTest = an.genDonneesTest(ndonnees, TroisClasses.extent)
     # Changer le flag dans les sections pertinentes pour chaque partie de laboratoire
-    if False: # TODO L2.E2.2
+    if True: # TODO L2.E2.2
 
         # classification
         # Bayes
         #                           (train_data, train_classes, donnee_test, title, extent, test_data, test_classes)
         classifiers.full_Bayes_risk(allClasses, TroisClasses.class_labels, donneesTest, 'Bayes risque #1', TroisClasses.extent, TroisClasses.data, TroisClasses.class_labels)
 
-    if False: # TODO L2.E3
+    if True: # TODO L2.E3
         # 1-PPV avec comme représentants de classes l'ensemble des points déjà classés
         #           full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, datatest2=None, classestest2=None)
         classifiers.full_ppv(1, TroisClasses.data, TroisClasses.class_labels, donneesTest, '1-PPV avec données orig comme représentants', TroisClasses.extent)

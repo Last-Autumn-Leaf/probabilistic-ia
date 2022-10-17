@@ -105,7 +105,7 @@ def viewEllipse(data, ax, scale=1, facecolor='none', edgecolor='red', **kwargs):
     selected_v=vectors[:,1]
     angle =np.arctan2(selected_v[1], selected_v[0]) *180/np.pi
 
-    ellipse = Ellipse(moy, width=scale*lambdas[1], height=scale*lambdas[0],
+    ellipse = Ellipse(moy, width=2*scale*lambdas[1], height=2*scale*lambdas[0],
                       angle= angle, facecolor=facecolor,
                       edgecolor=edgecolor, linewidth=2, **kwargs)
     return ax.add_patch(ellipse)
@@ -274,7 +274,7 @@ def plot_metrics(model):
     f.tight_layout()
 
 
-def creer_hist2D(data, title, nbin=15, plot=False):
+def creer_hist2D(data, title, nbin=12, plot=False):
     """
     Crée une densité de probabilité pour une classe 2D au moyen d'un histogramme
     data: liste des points de la classe, 1 point par ligne (dimension 0)
