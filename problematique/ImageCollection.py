@@ -310,9 +310,10 @@ class ImageCollection:
     def getDatasetTable(self,current_mode='RGB',n_bins=256,watch=watch_var[1]):
 
         data={}
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10,5 ))
         # hide axes
         fig.patch.set_visible(False)
+
 
         #----- start for loop here
         for c_dataset in self.all_classes :
@@ -324,6 +325,7 @@ class ImageCollection:
         df = pd.DataFrame(data, index=self.enc_repr[current_mode] +['Color'])
         table=ax.table(cellText=df.values, rowLabels=df.index,colLabels=df.columns, loc='center',
                  cellLoc='center')
+        table.scale(2, 2)
         for i,c_class in enumerate(self.all_classes):
             current_color =[x/(n_bins-1) for x in data[c_class][:3]] #normalize between[0,1]
 
