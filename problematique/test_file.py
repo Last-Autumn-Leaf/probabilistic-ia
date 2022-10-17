@@ -13,7 +13,7 @@ def main():
 
     IC =ImageCollection()
     idx=IC.forest_id[:5]
-    IC.getDatasetScatterGraph('HSV',n_bins=256,watch = IC.watch_var[0])
+    IC.getDatasetScatterGraph('Lab',n_bins=256,watch = IC.watch_var[2])
     IC.getDatasetTable(current_mode='RGB',n_bins=256)
 
     #IC.view_histogrammes(IC.coast_id[0])

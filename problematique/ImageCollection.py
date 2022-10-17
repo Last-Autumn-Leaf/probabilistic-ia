@@ -72,8 +72,10 @@ class ImageCollection:
         'street':street_id}
     all_classes=[k for k in enc_classes]
     most_frequent_f = lambda x: np.argmax(np.bincount(x))
-    stats_func=[np.mean,most_frequent_f]
-    watch_var=['mean bin','predominant bin','data']
+    square_sum = lambda x: np.sum(np.square(x))/256**3
+
+    stats_func=[np.mean,most_frequent_f,square_sum]
+    watch_var=['mean bin','predominant bin','square sum','data']
     s_to_fun = {k:kk for k,kk in zip(watch_var,stats_func)}
 
 
@@ -363,7 +365,7 @@ class ImageCollection:
             for i in range(3) :
                 ax[i].scatter(data[i][watch], data[(i+1)%3][watch], alpha=0.4,color=colors[c_dataset],marker='.')
                 data_ellipse=np.array([data[i][watch],data[(i+1)%3][watch]]).T
-                viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 0.1,alpha=0.25)
+                viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 3,alpha=0.25)
         ax_3d.set_xlabel(self.enc_repr[current_mode][0])
         ax_3d.set_ylabel(self.enc_repr[current_mode][1])
         ax_3d.set_zlabel(self.enc_repr[current_mode][2])

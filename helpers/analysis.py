@@ -100,7 +100,7 @@ def viewEllipse(data, ax, scale=1, facecolor='none', edgecolor='red', **kwargs):
     moy, cov, lambdas, vectors = calcModeleGaussien(data)
     # TODO L2.E1.2 Remplacer les valeurs par les bons paramètres à partir des stats ici
     order =np.argsort(lambdas)
-    lambdas=lambdas[order]
+    lambdas=np.sqrt(lambdas[order])
     vectors=vectors[:,order]
     selected_v=vectors[:,1]
     angle =np.arctan2(selected_v[1], selected_v[0]) *180/np.pi
