@@ -19,6 +19,9 @@ from skimage import io as skiio
 import matplotlib.cm as cm
 import pandas as pd
 
+from helpers.analysis import viewEllipse
+
+
 class ImageCollection:
     """
     Classe globale pour regrouper les infos utiles et les méthodes de la collection d'images
@@ -359,7 +362,8 @@ class ImageCollection:
 
             for i in range(3) :
                 ax[i].scatter(data[i][watch], data[(i+1)%3][watch], alpha=0.4,color=colors[c_dataset],marker='.')
-
+                data_ellipse=np.array([data[i][watch],data[(i+1)%3][watch]]).T
+                viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 0.1,alpha=0.25)
         ax_3d.set_xlabel(self.enc_repr[current_mode][0])
         ax_3d.set_ylabel(self.enc_repr[current_mode][1])
         ax_3d.set_zlabel(self.enc_repr[current_mode][2])
@@ -371,6 +375,7 @@ class ImageCollection:
             label=f"{current_mode[(i+1)%3]}=fct({current_mode[i]})"
             ax[i].set_title(label)
             ax[i].set(xlabel=labelx, ylabel=labely)
+            ax[i].axes.set_aspect('equal')
 
         fig.suptitle(f"{current_mode} using {n_bins} watching {watch}")
         fig.tight_layout()
