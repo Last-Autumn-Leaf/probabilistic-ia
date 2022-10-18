@@ -373,15 +373,32 @@ class ImageCollection:
         # ----- start for loop here
         for c_dataset in self.all_classes:
             result = self.getStat(self.enc_classes[c_dataset], current_mode, n_bins)
-            data = [result[i]['data'] for i in range(3)]
 
-            ax_3d.scatter(data[0][watch],data[1][watch],data[2][watch], alpha=0.4,
-                          color=colors[c_dataset],marker='o',label=c_dataset)
+            if watch == 'max vector':
+                data = result[watch]
+                R = [data[j][1][0] for j in range(len(data))]
+                G = [data[j][1][1] for j in range(len(data))]
+                B = [data[j][1][2] for j in range(len(data))]
+                values_axes = {0:R,1:G,2:B}
+                ax_3d.scatter(values_axes[0], values_axes[1], values_axes[2], alpha=0.4,
+                              color=colors[c_dataset], marker='o', label=c_dataset)
 
-            for i in range(3) :
-                ax[i].scatter(data[i][watch], data[(i+1)%3][watch], alpha=0.4,color=colors[c_dataset],marker='.')
-                data_ellipse=np.array([data[i][watch],data[(i+1)%3][watch]]).T
-                viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 1,alpha=0.25)
+                for i in range(3) :
+                    ax[i].scatter(values_axes[i], values_axes[(i+1)%3], alpha=0.4,color=colors[c_dataset],marker='.')
+                    data_ellipse=np.array([values_axes[i],values_axes[(i+1)%3]]).T
+                    viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 1,alpha=0.25)
+
+            else:
+                data = [result[i]['data'] for i in range(3)]
+
+                ax_3d.scatter(data[0][watch],data[1][watch],data[2][watch], alpha=0.4,
+                              color=colors[c_dataset],marker='o',label=c_dataset)
+
+                for i in range(3) :
+                    ax[i].scatter(data[i][watch], data[(i+1)%3][watch], alpha=0.4,color=colors[c_dataset],marker='.')
+                    data_ellipse=np.array([data[i][watch],data[(i+1)%3][watch]]).T
+                    viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 1,alpha=0.25)
+
         ax_3d.set_xlabel(self.enc_repr[current_mode][0])
         ax_3d.set_ylabel(self.enc_repr[current_mode][1])
         ax_3d.set_zlabel(self.enc_repr[current_mode][2])
