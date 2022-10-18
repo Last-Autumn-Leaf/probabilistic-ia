@@ -80,35 +80,23 @@ def compute_prob_dens_gaussian(train_data, test_data1, test_data2):
         det_list.append(det)
 
     # calcule les probabilités de chaque point des données de test pour chaque classe
-    # correspond à .predict dans la logique sklearn
+    # correspond à predict dans la logique sklearn
     test_data1 = np.array(test_data1)
     t1, v1 = test_data1.shape
     test_data2 = np.array(test_data2)
     t2, v2 = test_data2.shape
     dens_prob1 = []
     dens_prob2 = []
+    mahla = lambda text_data,i,j : np.matmul(np.matmul((text_data[j]-mean_list[i]).T,inv_cov_list[i]),(text_data[j]-mean_list[i]))
     # calcule la valeur de la densité de probabilité pour chaque point de test
-
-    def mahla(test_datai,mean_listi,inv_cov_listi):
-        mahalanobis = []
-        ti = len(test_datai)
-        for j in range(ti):
-            X_m = test_datai[j] - mean_listi
-            X_m = np.expand_dims(X_m, axis=0)
-            X_mT = X_m.T
-            XT_cov = np.matmul(X_m, inv_cov_listi)
-            mahla = np.matmul(XT_cov, X_mT)
-            mahalanobis.append(mahla)
-        return np.squeeze(np.array(mahalanobis))
-
     for i in range(x):  # itère sur toutes les classes
         # pour les points dans test_data1
         # TODO L2.E2.3 Compléter le calcul ici
-        mahalanobis1 = mahla(test_data1,mean_list[i],inv_cov_list[i])
+        mahalanobis1 = np.array([mahla(test_data1,i,j)  for j in range(t1)])
         prob1 = 1 / np.sqrt(det_list[i] * (2 * np.pi) ** z) * np.exp(-mahalanobis1 / 2)
         dens_prob1.append(prob1)
         # pour les points dans test_data2
-        mahalanobis2 = mahla(test_data2,mean_list[i],inv_cov_list[i])
+        mahalanobis2 = np.array([mahla(test_data2,i,j) for j in range(t2)])
         prob2 = 1 / np.sqrt(det_list[i] * (2 * np.pi) ** z) * np.exp(-mahalanobis2 / 2)
         dens_prob2.append(prob2)
 
@@ -127,10 +115,12 @@ def ppv_classify(n_neighbors, train_data, classes, test1, test2=None):
     # metric est le type de distance entre les points. La liste est disponible ici:
     # https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.DistanceMetric.html#sklearn.neighbors.DistanceMetric
     # TODO L2.E3.1 Compléter la logique pour utiliser la librairie ici
-    kNN = knn(n_neighbors=n_neighbors, metric='minkowski')  # minkowski correspond à distance euclidienne lorsque le paramètre p = 2
-    kNN.fit(train_data,classes)
+    kNN = knn(n_neighbors, metric='minkowski')  # minkowski correspond à distance euclidienne lorsque le paramètre p = 2
+    kNN.fit(train_data, classes)
     predictions_test1 = kNN.predict(test1) # classifie les données de test1
     predictions_test2 = kNN.predict(test2) if np.asarray(test2).any() else np.asarray([])  # classifie les données de test2 si présentes
+
+
     return predictions_test1, predictions_test2
 
 
@@ -148,7 +138,7 @@ def kmean_alg(n_clusters, data):
     # calcule les représentants pour chaque classe séparément
     for i in range(x):
         # TODO L2.E3.3 compléter la logique pour utiliser la librairie ici
-        kmeans_C = km(1)
+        kmeans_C = km(n_clusters)
         kmeans_C.fit(np.array(data[i]))
         cluster_centers.append(kmeans_C.cluster_centers_)
         cluster_labels[range(n_clusters * i, n_clusters * (i + 1))] = i  # assigne la classe en ordre ordinal croissant
@@ -278,7 +268,7 @@ def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, d
         predictions2[error_indexes] = error_class
         print(
             f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classestest2))}%')
-    #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
+    #an.view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
     an.view_classification_results(train_data, datatest1, train_classes, predictions, title, 'Représentants de classe',
                                    f'Données aléatoires classées {n_neighbors}-PPV',
                                    extent, datatest2, predictions2 / error_class / 0.75,

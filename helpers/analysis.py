@@ -65,6 +65,12 @@ class Extent:
         """
         return [[self.xmin, self.xmax], [self.ymin, self.ymax]]
 
+    def get_corners(self):
+        """
+        Accesseur qui retourne une liste points qui correspondent aux 4 coins d'un range 2D bornés par les min max
+        """
+        return np.array(list(itertools.product([self.xmin, self.xmax], [self.ymin, self.ymax])))
+
 
 def calcModeleGaussien(data, message=''):
     """
@@ -274,7 +280,7 @@ def plot_metrics(model):
     f.tight_layout()
 
 
-def creer_hist2D(data, title, nbin=12, plot=False):
+def creer_hist2D(data, title, nbin=15, plot=False):
     """
     Crée une densité de probabilité pour une classe 2D au moyen d'un histogramme
     data: liste des points de la classe, 1 point par ligne (dimension 0)

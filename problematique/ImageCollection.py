@@ -20,6 +20,7 @@ import matplotlib.cm as cm
 import pandas as pd
 
 from helpers.analysis import viewEllipse
+from helpers.custom_helper import getHighestFrequencyVector
 
 
 class ImageCollection:
@@ -72,11 +73,13 @@ class ImageCollection:
         'street':street_id}
     all_classes=[k for k in enc_classes]
     most_frequent_f = lambda x: np.argmax(np.bincount(x))
-    homogenous = lambda x: np.max(np.bincount(x))
     square_sum = lambda x: np.sum(np.square(x))/256**3
+    vector_max=lambda x :getHighestFrequencyVector(x)
 
-    stats_func=[np.mean,most_frequent_f,square_sum,homogenous]
-    watch_var=['mean bin','predominant bin','square sum','homogenous','data']
+    stats_func=[np.mean,most_frequent_f,square_sum,vector_max]
+    watch_var=['mean bin','predominant bin','square sum','max vector','data']
+    raw_data=['data','max vector'] # non moyenné donc pour 1 valeur par image
+    vector_data=['max vector']
     s_to_fun = {k:kk for k,kk in zip(watch_var,stats_func)}
 
 
@@ -252,9 +255,12 @@ class ImageCollection:
 
     def getStat(self,indexes,mode='RGB',n_bins=256):
 
-        store={i : {k:[] for k in self.watch_var}
+        store={i : {k:[] for k in self.watch_var if k not in self.raw_data}
                for i in range(3)
                }
+
+        for k in self.raw_data :
+            store[k]=[]
 
         if type(indexes) == int:
             indexes = [indexes]
@@ -279,17 +285,24 @@ class ImageCollection:
             else :
                 images=images.astype('int32')
             #255x255x3
+
             for i in range (3):
                 current_r=images[:,:,i].reshape((256*256)) # 256x256 array
-                for k in store[i]:
-                    if k != 'data':
+                for k in store[i]  :
+                    if k not in self.raw_data:
                         store[i][k].append(self.s_to_fun[k](current_r))
 
+            for k in self.vector_data :
+                store[k].append(self.s_to_fun[k](images))
+
+
+
         for i in range(3):
+            # revoir data et raw data
             store[i]['data']=store[i].copy()
-            del store[i]['data']['data']
+            #del store[i]['data']['data']
             for k in store[i]:
-                if k !='data':
+                if k not in self.raw_data:
                     store[i][k]=np.round(np.mean(store[i][k]),1)
 
         return store
