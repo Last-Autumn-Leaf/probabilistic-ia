@@ -1,6 +1,12 @@
+
+from ImageCollection import plt
 import numpy as np
+import random
+from ImageCollection import ImageCollection
+from helpers.custom_helper import *
 
-r = np.random.randn(100,3)
+if __name__=='__main__':
+    image=np.zeros((256,256,3))
 
-H, edges = np.histogramdd(r)
-print(H.shape, edges[0].size, edges[1].size, edges[2].size)
+
+    debug= f(image)

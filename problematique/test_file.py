@@ -2,35 +2,41 @@ import numpy.random
 
 from ImageCollection import plt
 import numpy as np
-import random
 from ImageCollection import ImageCollection
+from helpers.custom_helper import *
 
 
-
-get_n_rand = lambda sett=ImageCollection.coast_id,n=1 :random.sample(sett, n)
 def main():
     np.random.seed(0)
-
-
     IC =ImageCollection()
-    #idx=IC.coast_id
-    # for idx in IC.all_classes :
-    #     idx=IC.enc_classes[idx]
-    #     a=IC.getStat(idx,n_bins=32)['max vector']
-    #     b=[]
-    #     for max_bin,max_v in a :
-    #         b.append(max_bin)
-    #
-    #     plt.hist(b,bins=100)
+
+    #Choix du Dataset
+    dataset_size=5
+    idx = get_n_rand_from_set(IC.coast_id, dataset_size)
+
+    # Ici on choisit les dimensions que l'on veut surveillé et calculer !
+    dim_name=[d_mean_bin,v_pred_bin]
+    # petite fonction our initiliser avec les paramètres par défaut les dimensions
+    # Pour L'instant il n'y a qu'un seul paramètre qui est si on calcul la moyenne ou non !
+    # Donc pas vraiment utile.
+    # La classe dimension a besoin de connaitre la taille du dataset afin de pré-allouer la mémoire
+
+    dims =[getDefaultVar(name, dataset_size) for name in dim_name]
+    tracker= VariablesTracker(dims)
+
+    # Les calculs se font dans cette fonction
+    IC.getStat(idx,tracker)
 
 
-    IC.getDatasetScatterGraph('RGB',n_bins=32,watch = IC.watch_var[3])
-    #IC.getDatasetTable(current_mode='RGB',n_bins = 32, watch = IC.watch_var[3])
-
-    #IC.view_histogrammes(IC.coast_id[0])
-    #IC.images_display(idx)
-
-    plt.show()
+    for var in tracker.variables :
+        print('________________________')
+        print(var)
+        print('\tdata:\n',var.data) # les données brutes de taille (3 ou 4) x datase_size
+        if var.isAvg :
+            print('\tmean:\n',var.mean) #les données moyennées de taille (3 ou 4) x 1
+        else:
+            print('No mean')
+    #plt.show()
 
 
 if __name__ == '__main__':

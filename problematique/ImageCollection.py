@@ -65,22 +65,10 @@ class ImageCollection:
     # Number of bins per color channel pour les histogrammes (et donc la quantification de niveau autres formats)
     n_bins = 256  #
 
-    enc_repr = {'RGB': ['Red', 'Green', 'Blue'],
-                'HSV': ['Hue', 'Saturation', 'Value'],
-                'Lab': ['L', 'a', 'b']}
     enc_classes = {'coast': coast_id,
         'forest':forest_id,
         'street':street_id}
     all_classes=[k for k in enc_classes]
-    most_frequent_f = lambda x: np.argmax(np.bincount(x))
-    square_sum = lambda x: np.sum(np.square(x))/256**3
-    vector_max=lambda x :getHighestFrequencyVector(x)
-
-    stats_func=[np.mean,most_frequent_f,square_sum,vector_max]
-    watch_var=['mean bin','predominant bin','square sum','max vector','data']
-    raw_data=['data','max vector'] # non moyenné donc pour 1 valeur par image
-    vector_data=['max vector']
-    s_to_fun = {k:kk for k,kk in zip(watch_var,stats_func)}
 
 
     def images_display(self,indexes):
@@ -253,14 +241,7 @@ class ImageCollection:
             ax[num_images,3].scatter(range(start, end), pixel_valuesHSV[2, start:end],s=5, c='k')
             image_name = ImageCollection.image_list[indexes[num_images]]
 
-    def getStat(self,indexes,mode='RGB',n_bins=256):
-
-        store={i : {k:[] for k in self.watch_var if k not in self.raw_data}
-               for i in range(3)
-               }
-
-        for k in self.raw_data :
-            store[k]=[]
+    def getStat(self,indexes,tracker,mode='RGB',n_bins=256):
 
         if type(indexes) == int:
             indexes = [indexes]
@@ -286,51 +267,37 @@ class ImageCollection:
                 images=images.astype('int32')
             #255x255x3
 
-            for i in range (3):
+            tracker.compute_for_image(images,num_images)
+            '''for i in range (3):
                 current_r=images[:,:,i].reshape((256*256)) # 256x256 array
                 for k in store[i]  :
                     if k not in self.raw_data:
                         store[i][k].append(self.s_to_fun[k](current_r))
 
             for k in self.vector_data :
-                store[k].append(self.s_to_fun[k](images))
+                store[k].append(self.s_to_fun[k](images))'''
 
 
-
-        for i in range(3):
+        tracker.compute_mean()
+        '''for i in range(3):
             # revoir data et raw data
             store[i]['data']=store[i].copy()
             #del store[i]['data']['data']
             for k in store[i]:
                 if k not in self.raw_data:
-                    store[i][k]=np.round(np.mean(store[i][k]),1)
+                    store[i][k]=np.round(np.mean(store[i][k]),1)'''
 
-        return store
+        return tracker
 
-    def DatasetInfo(self,dataset='coast',current_mode='RGB',n_bins=255,printInfo=True):
-        assert (n_bins>3)
-        current_dataset=self.enc_classes[dataset]
-        size_dataset=len(current_dataset)
-        if printInfo:
-            print("#Dataset :",size_dataset, dataset,"files")
 
-        result=self.getStat(current_dataset,current_mode,n_bins)
-        if printInfo:
-            for i,r in enumerate(self.enc_repr[current_mode]) :
-                print('\tstats value for',r,':',end='')
-                print('\t\t',*result[i].items(),sep='\n\t\t')
-            print('\tusing ',n_bins,'bins\n') # using bins the new max value become n_bins-1
+    def getDatasetTable(self,tracker,current_mode='RGB',n_bins=256):
 
-        return size_dataset,result
-
-    def getDatasetTable(self,current_mode='RGB',n_bins=256,watch=watch_var[1]):
-
-        data={}
         fig, ax = plt.subplots(figsize=(10,5 ))
         # hide axes
         fig.patch.set_visible(False)
 
-
+        watch=None
+        data=None
         #----- start for loop here
         for c_dataset in self.all_classes :
             result=self.getStat(self.enc_classes[c_dataset],current_mode,n_bins)
@@ -363,7 +330,7 @@ class ImageCollection:
         fig.suptitle(f"Dataset table infor for {n_bins} bins")
         #plt.show()
 
-    def getDatasetScatterGraph(self,current_mode='RGB',n_bins=256,watch=watch_var[1]):
+    def getDatasetScatterGraph(self,current_mode='RGB',n_bins=256,watch=None):
 
         colors=['blue','green','black']
         colors={k:v for k,v in zip(self.all_classes,colors) }
