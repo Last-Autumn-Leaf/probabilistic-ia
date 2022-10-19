@@ -37,7 +37,10 @@ C) Autres fonctions modulaires
 """
 
 from itertools import combinations
+
+import keras.losses
 import numpy as np
+import sklearn.model_selection
 
 from sklearn.cluster import KMeans as km
 from sklearn.neighbors import KNeighborsClassifier as knn
@@ -163,14 +166,15 @@ def nn_classify(n_hidden_layers, n_neurons, train_data, classes, test1, test2=No
     # Convertit la représentation des étiquettes pour utiliser plus facilement la cross-entropy comme loss
     # TODO L3.E2.1
     encoder = OneHotEncoder(sparse=False)
-    targets = classes
+    targets = encoder.fit_transform(classes[:,None])
 
     # Crée des ensembles d'entraînement et de validation
     # TODO L3.E2.3
-    training_data = data
-    training_target = targets
-    validation_data = []
-    validation_target = []
+    temp= sklearn.model_selection.train_test_split(data,targets,test_size=0.2,shuffle=True)
+    training_data = temp[0]
+    training_target = temp[2]
+    validation_data = temp[1]
+    validation_target = temp[3]
 
     # Create neural network
     # TODO L3.E2.6 Tune the number and size of hidden layers
@@ -178,21 +182,24 @@ def nn_classify(n_hidden_layers, n_neurons, train_data, classes, test1, test2=No
     NNmodel.add(Dense(units=n_neurons, activation='tanh', input_shape=(data.shape[-1],)))
     for i in range(2, n_hidden_layers):
         NNmodel.add(Dense(units=n_neurons, activation='tanh'))
-    NNmodel.add(Dense(units=targets.shape[-1], activation='tanh'))
+    NNmodel.add(Dense(units=targets.shape[-1], activation='softmax'))
     print(NNmodel.summary())
 
     # Define training parameters
     # TODO L3.E2.6 Tune the training parameters
     # TODO L3.E2.1
-    NNmodel.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+    NNmodel.compile(optimizer=Adam(), loss=keras.losses.categorical_crossentropy, metrics=['accuracy'])
 
     # Perform training
     # TODO L3.E2.4
-    callback_list = [K.callbacks.EarlyStopping(patience=50, verbose=1, restore_best_weights=1), print_every_N_epochs(25)]
+    callback_list = [K.callbacks.EarlyStopping(patience=50, verbose=1, restore_best_weights=1), print_every_N_epochs(100)]
     # TODO L3.E2.6 Tune the maximum number of iterations and desired error
     # TODO L3.E2.2 L3.E2.3
-    NNmodel.fit(training_data, training_target, batch_size=len(data), verbose=1,
-              epochs=10, shuffle=True, callbacks=[])
+    NNmodel.fit(training_data, training_target, batch_size=len(data), verbose=0,
+        epochs=3000, shuffle=True, callbacks=callback_list,
+        validation_data=[validation_data,validation_target])
+
+
 
     # Save trained model to disk
     NNmodel.save('3classes.h5')
@@ -397,7 +404,7 @@ class print_every_N_epochs(K.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         # TODO L3.E2.4
-        if True:
+        if (epoch %self.epochs) == 0:
             print("Epoch: {:>3} | Loss: ".format(epoch) +
                   f"{logs['loss']:.4e}" + " | Valid loss: " + f"{logs['val_loss']:.4e}" +
                   (f" | Accuracy: {logs['accuracy']:.4e}" + " | Valid accuracy " + f"{logs['val_accuracy']:.4e}"

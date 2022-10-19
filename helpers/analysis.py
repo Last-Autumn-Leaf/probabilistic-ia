@@ -80,8 +80,8 @@ def calcModeleGaussien(data, message=''):
     :return: la moyenne, la matrice de covariance, les valeurs propres et les vecteurs propres de "data"
     """
     # TODO L1.E2.2 Remplacer les valeurs bidons avec les fonctions appropriées ici
-    moyenne = np.mean(data,axis=0).round()
-    matr_cov = np.cov(data,rowvar=False).round()
+    moyenne = np.mean(data,axis=0)
+    matr_cov = np.cov(data,rowvar=False)
     val_propres, vect_propres = np.linalg.eig(matr_cov)
 
     if message:

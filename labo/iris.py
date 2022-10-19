@@ -33,12 +33,13 @@ Classificateur de fleurs basé sur des caractéristiques mesurées (représentat
 S8 GIA APP2
 TODO voir L3.E3
 """
-
+import keras.losses
 import numpy as np
 import scipy.io
 import matplotlib.pyplot as plt
 
 import keras as K
+import sklearn
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.optimizers import SGD
@@ -68,39 +69,54 @@ def main():
 
     # Show the 3D projection of the data
     # TODO L3.E3.1 Observez si différentes combinaisons de dimensions sont discriminantes
-    data3D = data[:, 1:4]
+    '''data3D = data[:, 1:4]
     an.view3D(data3D, target_decode, 'dims 1 2 3')
     data3D = data[:, [0,2,3]]
-    an.view3D(data3D, target_decode, 'dims 0 2 3')
+    an.view3D(data3D, target_decode, 'dims 0 2 3')'''
+
+    '''for i in range(4):
+        for j in range(4):
+            if i > j:
+                extent = an.Extent(ptList=data[:,[i,j]])
+                an.view_classes([C1[:,[i,j]],C2[:,[i,j]],C3[:,[i,j]]],extent)
+                plt.title(f'dim{i} et dim{j}')
+
+    plt.show()'''
+    i,j=3,2
+    extent = an.Extent(ptList=data[:, [i, j]])
+    an.view_classes([C1[:, [i, j]], C2[:, [i, j]], C3[:, [i, j]]], extent)
+    plt.title(f'dim{i} et dim{j}')
+    plt.show()
+    return 1
 
     # TODO : Apply any relevant transformation to the data
     # TODO L3.E3.1 Conservez les dimensions qui vous semblent appropriées et décorrélées-les au besoin
     # (e.g. filtering, normalization, dimensionality reduction)
-    data, minmax = an.scaleData(data)
-
+    data, minmax = an.scaleData(data[:,[3,2]])
+    #data=data[:,None]
     # TODO L3.E3.4
-    training_data = data
-    training_target = target
-    validation_data = []
-    validation_target = []
-
+    temp = sklearn.model_selection.train_test_split(data, target, test_size=0.2, shuffle=True)
+    training_data = temp[0]
+    training_target = temp[2]
+    validation_data = temp[1]
+    validation_target = temp[3]
     # Create neural network
     # TODO L3.E3.3  Tune the number and size of hidden layers
     model = Sequential()
-    model.add(Dense(units=50, activation='tanh',
+    model.add(Dense(units=1, activation='tanh',
                     input_shape=(data.shape[-1],)))
-    model.add(Dense(units=target.shape[-1], activation='linear'))
+    model.add(Dense(units=target.shape[-1], activation='softmax'))
     print(model.summary())
 
     # Define training parameters
     # TODO L3.E3.3 Tune the training parameters
-    model.compile(optimizer=SGD(learning_rate=0.1, momentum=0.9), loss='mse')
+    model.compile(optimizer=SGD(learning_rate=0.1, momentum=0.9), loss=keras.losses.categorical_crossentropy)
 
     # Perform training
     callback_list = []
     # TODO L3.E3.3  Tune the training hyperparameters
     model.fit(training_data, training_target, batch_size=len(data), verbose=1,
-              epochs=1000, shuffle=True, callbacks=callback_list)
+              epochs=200, shuffle=True, callbacks=callback_list,validation_data=[validation_data,validation_target])
 
     # Save trained model to disk
     model.save('iris.h5')
@@ -113,6 +129,8 @@ def main():
 
     # Print the number of classification errors from the training data
     error_indexes = classifiers.calc_erreur_classification(np.argmax(targetPred, axis=-1), target_decode)
+    accuracy = (len(data) - len(error_indexes)) / len(data)
+    print('Classification accuracy: %0.3f' % accuracy)
 
     plt.show()
 

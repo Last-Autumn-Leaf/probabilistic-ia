@@ -60,7 +60,6 @@ associative_dims=[v_pred_bin]
 # 4*n if isAssociative else 3*n
 class dimension:
     # using Numpy will optimize the space and reduce the computation time
-    # TODO : preallocate the memory will also reduce the computation time !
     def __init__(self, name, isAvg=True, max_dataset_size=292):
         self.max_dataset_size = max_dataset_size
         self.name = name
@@ -104,9 +103,10 @@ getDefaultVar = lambda name,dataset_size=2 : var_name2default_dim[name].update_d
 
 class VariablesTracker:
 
-    def __init__(self,track_list):
+    def __init__(self,track_list,mode=RGB):
         self.variables=track_list # list of dimensions to watch !
         self.name2var={var.name:var for var in self.variables}
+        self.mode=mode
 
     def __getitem__(self, item): # get a variable by index
         return self.variables[item]
@@ -133,7 +133,10 @@ class VariablesTracker:
             s+=f"{var}" +"\n"
         return s
 
-
+class ClassesTracker :
+    def __init__(self,name,idx_list):
+        self.name = name
+        self.idx_list=idx_list
 
 
 

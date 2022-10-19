@@ -20,7 +20,7 @@ import matplotlib.cm as cm
 import pandas as pd
 
 from helpers.analysis import viewEllipse
-from helpers.custom_helper import getHighestFrequencyVector
+from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, ClassesTracker
 
 
 class ImageCollection:
@@ -65,11 +65,11 @@ class ImageCollection:
     # Number of bins per color channel pour les histogrammes (et donc la quantification de niveau autres formats)
     n_bins = 256  #
 
-    enc_classes = {'coast': coast_id,
-        'forest':forest_id,
-        'street':street_id}
-    all_classes=[k for k in enc_classes]
+    Coast_class=ClassesTracker('coast',coast_id)
+    Forest_class=ClassesTracker('forest',forest_id)
+    Street_class=ClassesTracker('street',street_id)
 
+    all_classes=[Coast_class,Forest_class,Street_class]
 
     def images_display(self,indexes):
         """
@@ -241,7 +241,20 @@ class ImageCollection:
             ax[num_images,3].scatter(range(start, end), pixel_valuesHSV[2, start:end],s=5, c='k')
             image_name = ImageCollection.image_list[indexes[num_images]]
 
-    def getStat(self,indexes,tracker,mode='RGB',n_bins=256):
+
+    def getStat(self,indexes,track_list,n_bins=256):
+
+        if type(track_list)!= list :
+            track_list=[track_list]
+
+        should_Compute=[False,False,False]
+        for tracker in track_list :
+            if tracker.mode==RGB :
+                should_Compute[0]=True
+            elif tracker.mode==HSV :
+                should_Compute[1]=True
+            elif tracker.mode==Lab :
+                should_Compute[2]=True
 
         if type(indexes) == int:
             indexes = [indexes]
@@ -253,43 +266,33 @@ class ImageCollection:
                 images = skiio.imread(
                     ImageCollection.image_folder + os.sep + ImageCollection.image_list[indexes[num_images]])
 
-            if mode =='HSV':
-                images = skic.rgb2hsv(images)
-            elif mode =='Lab':
+            if should_Compute[1]:
+                images_HSV = skic.rgb2hsv(images)
+                images_HSV = np.round(images_HSV / np.max(images_HSV) * (n_bins - 1)).astype('int32')
+                for tracker in track_list :
+                    if tracker.mode==HSV :
+                        tracker.compute_for_image(images_HSV, num_images)
+
+            if should_Compute[2]:
                 # L [0,100],a,b [-127,127]
-                images = skic.rgb2lab(images)
-                images = self.rescaleHistLab(images, n_bins)
+                images_LAB = skic.rgb2lab(images)
+                images_LAB = self.rescaleHistLab(images_LAB, n_bins)
+                images_LAB = images_LAB.astype('int32')
+                for tracker in track_list :
+                    if tracker.mode==Lab :
+                        tracker.compute_for_image(images_LAB, num_images)
+            if  should_Compute[0]:
+                images = np.round(images / np.max(images) * (n_bins - 1)).astype('int32')
+                for tracker in track_list :
+                    if tracker.mode==RGB :
+                        tracker.compute_for_image(images, num_images)
 
-            if mode !='Lab' : # do we want to do this for rgb ?
-                # Lab et HSV requiert un rescaling avant d'histogrammer parce que ce sont des floats au départ!
-                images = np.round(images/np.max(images) * (n_bins - 1)).astype('int32')  # HSV has all values between 0 and 100
-            else :
-                images=images.astype('int32')
-            #255x255x3
-
-            tracker.compute_for_image(images,num_images)
-            '''for i in range (3):
-                current_r=images[:,:,i].reshape((256*256)) # 256x256 array
-                for k in store[i]  :
-                    if k not in self.raw_data:
-                        store[i][k].append(self.s_to_fun[k](current_r))
-
-            for k in self.vector_data :
-                store[k].append(self.s_to_fun[k](images))'''
-
-
-        tracker.compute_mean()
-        '''for i in range(3):
-            # revoir data et raw data
-            store[i]['data']=store[i].copy()
-            #del store[i]['data']['data']
-            for k in store[i]:
-                if k not in self.raw_data:
-                    store[i][k]=np.round(np.mean(store[i][k]),1)'''
+        for tracker in track_list :
+            tracker.compute_mean()
 
         return tracker
 
-
+    # TODO refaire get DatasetTable
     def getDatasetTable(self,tracker,current_mode='RGB',n_bins=256):
 
         fig, ax = plt.subplots(figsize=(10,5 ))
