@@ -20,7 +20,7 @@ import matplotlib.cm as cm
 import pandas as pd
 
 from helpers.analysis import viewEllipse
-from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, ClassesTracker
+from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, ClassesTracker, class2detailed_repr
 
 
 class ImageCollection:
@@ -43,8 +43,8 @@ class ImageCollection:
     # # Dimensions [980, 256, 256, 3]
     # #            [Nombre image, hauteur, largeur, RGB]
     # # TODO décommenter si voulu pour charger TOUTES les images
-    # images = np.array([np.array(skiio.imread(image)) for image in _path])
-    # all_images_loaded = True
+    if all_images_loaded :
+        images = np.array([np.array(skiio.imread(image)) for image in _path])
 
     # Custom addings :
 
@@ -242,18 +242,16 @@ class ImageCollection:
             image_name = ImageCollection.image_list[indexes[num_images]]
 
 
-    def getStat(self,indexes,track_list,n_bins=256):
+    def getStat(self,indexes,tracker,n_bins=256):
 
-        if type(track_list)!= list :
-            track_list=[track_list]
 
         should_Compute=[False,False,False]
-        for tracker in track_list :
-            if tracker.mode==RGB :
+        for var in tracker.variables :
+            if var.mode==RGB :
                 should_Compute[0]=True
-            elif tracker.mode==HSV :
+            elif var.mode==HSV :
                 should_Compute[1]=True
-            elif tracker.mode==Lab :
+            elif var.mode==Lab :
                 should_Compute[2]=True
 
         if type(indexes) == int:
@@ -261,7 +259,8 @@ class ImageCollection:
         for num_images in range(len(indexes)):
             # charge une image si nécessaire
             if ImageCollection.all_images_loaded:
-                images = ImageCollection.images[num_images]
+                #images = ImageCollection.images[num_images] # ancienne ligne de code
+                images = ImageCollection.images[indexes[num_images]]
             else:
                 images = skiio.imread(
                     ImageCollection.image_folder + os.sep + ImageCollection.image_list[indexes[num_images]])
@@ -269,8 +268,8 @@ class ImageCollection:
             if should_Compute[1]:
                 images_HSV = skic.rgb2hsv(images)
                 images_HSV = np.round(images_HSV / np.max(images_HSV) * (n_bins - 1)).astype('int32')
-                for tracker in track_list :
-                    if tracker.mode==HSV :
+                for var in tracker :
+                    if var.mode==HSV :
                         tracker.compute_for_image(images_HSV, num_images)
 
             if should_Compute[2]:
@@ -278,16 +277,17 @@ class ImageCollection:
                 images_LAB = skic.rgb2lab(images)
                 images_LAB = self.rescaleHistLab(images_LAB, n_bins)
                 images_LAB = images_LAB.astype('int32')
-                for tracker in track_list :
-                    if tracker.mode==Lab :
+                for var in tracker :
+                    if var.mode==Lab :
                         tracker.compute_for_image(images_LAB, num_images)
             if  should_Compute[0]:
                 images = np.round(images / np.max(images) * (n_bins - 1)).astype('int32')
-                for tracker in track_list :
-                    if tracker.mode==RGB :
+                for var in tracker :
+                    if var.mode==RGB :
                         tracker.compute_for_image(images, num_images)
 
-        for tracker in track_list :
+
+
             tracker.compute_mean()
 
         return tracker
@@ -333,55 +333,33 @@ class ImageCollection:
         fig.suptitle(f"Dataset table infor for {n_bins} bins")
         #plt.show()
 
-    def getDatasetScatterGraph(self,current_mode='RGB',n_bins=256,watch=None):
+    def scatterGraph2D(self,dim1,dim2,tracker,n_bins=256):
+        var1=dim1[0]
+        mode1=dim1[1]
+        index1=dim1[2]
+
+        var2=dim2[0]
+        mode2=dim2[1]
+        index2=dim2[2]
 
         colors=['blue','green','black']
-        colors={k:v for k,v in zip(self.all_classes,colors) }
-        fig, ax = plt.subplots(1,3)
-        fig_3d = plt.figure(figsize=(10, 10))
-        ax_3d = fig_3d.add_subplot(projection='3d')
-        # ----- start for loop here
-        for c_dataset in self.all_classes:
-            result = self.getStat(self.enc_classes[c_dataset], current_mode, n_bins)
+        #colors={k:v for k,v in zip(self.all_classes,colors) }
+        fig, ax = plt.subplots(1)
 
-            if watch == 'max vector':
-                data = result[watch]
-                R = [data[j][1][0] for j in range(len(data))]
-                G = [data[j][1][1] for j in range(len(data))]
-                B = [data[j][1][2] for j in range(len(data))]
-                values_axes = {0:R,1:G,2:B}
-                ax_3d.scatter(values_axes[0], values_axes[1], values_axes[2], alpha=0.4,
-                              color=colors[c_dataset], marker='o', label=c_dataset)
+        for i,classes in enumerate(self.all_classes) :
+            if i%1 ==0:
+                print(f"classe {i}")
+            tracker.update_dataset_size(len(classes))
+            self.getStat(classes.idx_list,tracker,n_bins=n_bins)
+            x=tracker.pick_var(var1,mode1,index1)
+            y=tracker.pick_var(var2,mode2,index2)
 
-                for i in range(3) :
-                    ax[i].scatter(values_axes[i], values_axes[(i+1)%3], alpha=0.4,color=colors[c_dataset],marker='.')
-                    data_ellipse=np.array([values_axes[i],values_axes[(i+1)%3]]).T
-                    viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 1,alpha=0.25)
+            ax.scatter(x, y, alpha=0.4,color=colors[i],marker='.')
 
-            else:
-                data = [result[i]['data'] for i in range(3)]
+            data_ellipse=np.array((x,y)).T
+            viewEllipse(data = data_ellipse,ax = ax, facecolor = colors[i],scale= 1,alpha=0.25)
 
-                ax_3d.scatter(data[0][watch],data[1][watch],data[2][watch], alpha=0.4,
-                              color=colors[c_dataset],marker='o',label=c_dataset)
+        ax.set_title('')
 
-                for i in range(3) :
-                    ax[i].scatter(data[i][watch], data[(i+1)%3][watch], alpha=0.4,color=colors[c_dataset],marker='.')
-                    data_ellipse=np.array([data[i][watch],data[(i+1)%3][watch]]).T
-                    viewEllipse(data = data_ellipse,ax = ax[i], facecolor = colors[c_dataset],scale= 1,alpha=0.25)
-
-        ax_3d.set_xlabel(self.enc_repr[current_mode][0])
-        ax_3d.set_ylabel(self.enc_repr[current_mode][1])
-        ax_3d.set_zlabel(self.enc_repr[current_mode][2])
-        ax_3d.legend()
-
-        for i in range(3):
-            labelx = self.enc_repr[current_mode][i]
-            labely = self.enc_repr[current_mode][(i+1)%3]
-            label=f"{current_mode[(i+1)%3]}=fct({current_mode[i]})"
-            ax[i].set_title(label)
-            ax[i].set(xlabel=labelx, ylabel=labely)
-            ax[i].axes.set_aspect('equal')
-
-        fig.suptitle(f"{current_mode} using {n_bins} watching {watch}")
-        fig.tight_layout()
-        fig_3d.suptitle(f"{current_mode} using {n_bins} watching {watch}")
+        ax.set(xlabel=f"{class2detailed_repr[mode1][index1]}({var1})", ylabel=f"{class2detailed_repr[mode2][index2]}({var2})")
+        #ax.axes.set_aspect('equal')

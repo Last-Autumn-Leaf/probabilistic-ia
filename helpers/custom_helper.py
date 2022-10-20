@@ -6,16 +6,17 @@ get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
     store = defaultdict(int)
     x, y, z = image.shape
+    max_bin = 0
     for i in range(x):
         for j in range(y):
-            store[tuple(image[i, j])] += 1
+            a=tuple(image[i, j])
+            store[a] += 1
+            if max_bin <store[a] :
+                max_bin=store[a]
+                max_vector=a
 
-    max_bin = 0
 
-    for k, v in store.items():
-        if max_bin < v:
-            max_bin = v
-            max_vector = k
+
     return np.append(np.array(max_vector),max_bin)
 
 def d_pred_bin_f (image):
@@ -29,9 +30,10 @@ def d_pred_bin_f (image):
 RGB = 'RGB'
 HSV = 'HSV'
 Lab = 'Lab'
-class2detailed_repr = {RGB: ['Red', 'Green', 'Blue'],
-                       HSV: ['Hue', 'Saturation', 'Value'],
-                       Lab: ['L', 'a', 'b']}
+class2detailed_repr = {RGB: ['Red', 'Green', 'Blue','f'],
+                       HSV: ['Hue', 'Saturation', 'Value','f'],
+                       Lab: ['L', 'a', 'b','f']}
+
 
 # Variables names and # Fonctions
 # Dissociative variables means they calculate without taking the other dimension into account
@@ -60,15 +62,18 @@ associative_dims=[v_pred_bin]
 # 4*n if isAssociative else 3*n
 class dimension:
     # using Numpy will optimize the space and reduce the computation time
-    def __init__(self, name, isAvg=True, max_dataset_size=292):
+    def __init__(self, name, isAvg=True, max_dataset_size=292,mode=RGB):
         self.max_dataset_size = max_dataset_size
         self.name = name
+        self.mode=mode
         self.isAssociative = self.name in associative_dims
         # Doing the average only when asked to save computation time
         self.isAvg = isAvg
-
         self.round_val = 1
         self.create_storage()
+
+    def change_mode(self,mode):
+        self.mode=mode
     def create_storage(self):
         self.data = np.zeros((4 if self.isAssociative else 3, self.max_dataset_size))
         if self.isAvg:
@@ -89,6 +94,18 @@ class dimension:
     def __getitem__(self, item):
         return self.data[:,item]
 
+    def get_axis(self,axe,mean=False):
+        if not mean :
+            return self.data[axe]
+        elif self.isAvg:
+
+            return self.mean[axe]
+
+
+    def get_mean(self,index):
+        assert self.isAvg,'Not an average variable'
+        return self.mean[index]
+
     def __repr__(self):
         return f"{self.name},{'associative' if self.isAssociative else'dissociative'}," \
                f"{'avg' if self.isAvg else'no-avg'},{self.max_dataset_size}"
@@ -103,10 +120,12 @@ getDefaultVar = lambda name,dataset_size=2 : var_name2default_dim[name].update_d
 
 class VariablesTracker:
 
-    def __init__(self,track_list,mode=RGB):
+    def __init__(self,track_list):
+        if type(track_list)!= list :
+            track_list=[track_list]
         self.variables=track_list # list of dimensions to watch !
         self.name2var={var.name:var for var in self.variables}
-        self.mode=mode
+
 
     def __getitem__(self, item): # get a variable by index
         return self.variables[item]
@@ -127,6 +146,17 @@ class VariablesTracker:
             debug=var_name2f[var.name](image)
             var[index]=debug
 
+    def pick_var(self,dim=d_mean_bin, mode='RGB', index_mode=0):
+        for var in self.variables :
+            if var.name==dim  and var.mode==mode:
+                return var.get_axis (index_mode)
+
+    def pick_var_mean(self,dim=d_mean_bin, mode='RGB', index_mode=0):
+        for var in self.variables :
+            if var.name==dim  and var.mode==mode:
+                return var.get_axis (index_mode,True )
+
+
     def __repr__(self):
         s=""
         for var in self.variables :
@@ -138,5 +168,7 @@ class ClassesTracker :
         self.name = name
         self.idx_list=idx_list
 
+    def __len__(self):
+        return len(self.idx_list)
 
 
