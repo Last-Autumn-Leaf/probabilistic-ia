@@ -63,10 +63,11 @@ def main():
     C1 = data[np.where(target_decode == 0)]
     C2 = data[np.where(target_decode == 1)]
     C3 = data[np.where(target_decode == 2)]
-    an.calcModeleGaussien(C1, '\nClasse versicolor')
-    an.calcModeleGaussien(C2, '\nClasse virginica')
-    an.calcModeleGaussien(C3, '\nClasse setose')
+    m1, cov1, valpr1, vectprop1 = an.calcModeleGaussien(C1, '\nClasse versicolor')
+    m2, cov2, valpr2, vectprop2 = an.calcModeleGaussien(C2, '\nClasse virginica')
+    m3, cov3, valpr3, vectprop3 = an.calcModeleGaussien(C3, '\nClasse setose')
 
+    data = an.decorrelate(data, vectprop1)
     # Show the 3D projection of the data
     # TODO L3.E3.1 Observez si différentes combinaisons de dimensions sont discriminantes
     '''data3D = data[:, 1:4]
@@ -88,6 +89,10 @@ def main():
     plt.title(f'dim{i} et dim{j}')
     plt.show()
     return 1
+
+    data2D = data[:,1:2]
+    an.view_classes(data2D)
+
 
     # TODO : Apply any relevant transformation to the data
     # TODO L3.E3.1 Conservez les dimensions qui vous semblent appropriées et décorrélées-les au besoin

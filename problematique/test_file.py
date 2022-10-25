@@ -25,20 +25,23 @@ def main():
 
 
     # Ici on choisit les dimensions que l'on veut surveillé et calculer !
-    dim_name=[d_mean_bin,d_pred_bin]
+    dim_name=[d_pred_bin,d_pred_count]
     # petite fonction our initiliser avec les paramètres par défaut les dimensions
     # Pour L'instant il n'y a qu'un seul paramètre qui est si on calcul la moyenne ou non !
     # Donc pas vraiment utile.
     # La classe dimension a besoin de connaitre la taille du dataset afin de pré-allouer la mémoire
+    mode_list = [RGB,Lab,HSV]
+    dimensions_list =[dimension(name = dim_name[1],mode = mode_list[1]),dimension(name = dim_name[0],mode = mode_list[1])]
+    tracker = VariablesTracker(dimensions_list)
 
-    dimensions_list =[getDefaultVar(name) for name in dim_name]
-    tracker= VariablesTracker(dimensions_list)
-
-    d1=(d_mean_bin,RGB,0)
-    d2=(d_pred_bin,RGB,2)
+    d1=(d_pred_bin,mode_list[1],0)
+    d2=(d_pred_count,mode_list[1],0)
 
     with timeThat() :
-        IC.scatterGraph2D(d1,d2,tracker)
+        ...
+        IC.scatterGraph2D(d1,d2,tracker,n_bins=64)
+
+    # M1 = IC.GetCovMatrix(dimension_parameters = dimensions_list,tracker = tracker, n_bins=256)
     #IC.scatterGraph2D
 
     plt.show()

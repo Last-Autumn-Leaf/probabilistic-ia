@@ -88,7 +88,8 @@ def main():
     # TODO Comparez la performance de l'apprentissage avec un nombre différents de couches et de neurones
     model = Sequential()
     model.add(Dense(units=2, activation='sigmoid', input_shape=(2,)))
-    model.add(Dense(units=1, activation='sigmoid', input_shape=(2,)))
+    model.add(Dense(units=2, activation='sigmoid', input_shape=(2,)))
+    model.add(Dense(units=1, activation='sigmoid'))
     print(model.summary())
 
     # Define training parameters

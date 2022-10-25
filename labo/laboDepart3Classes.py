@@ -29,8 +29,9 @@ def main():
     allClasses = [TroisClasses.C1, TroisClasses.C2, TroisClasses.C3]
     # TODO L2.E1.3
     #[x**2, xy, y**2, x, y, cst (cote droit log de l'equation de risque), cst (dans les distances de mahalanobis)]
-    #coeffs = classifiers.get_borders(allClasses)
-    #an.view_classes(allClasses, TroisClasses.extent,coeffs)
+    coeffs = classifiers.get_borders(allClasses)
+    # coeffs = [[7/12,1/3,5/6,-7/6,5/3,np.log(24),-53/12],[-7/12,-1/3,-5/6,-29/6,31/3,-np.log(24),-487/12],[0,0,0,6,-12,0,45]]
+    an.view_classes(allClasses, TroisClasses.extent,coeffs)
 
     # TODO: move to static class?
     allDecorr = an.decorrelate(allClasses, vectprop1)
@@ -59,16 +60,18 @@ def main():
     if False: # TODO L2.E3
         # 1-PPV avec comme représentants de classes l'ensemble des points déjà classés
         #           full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, datatest2=None, classestest2=None)
-        #classifiers.full_ppv(30, TroisClasses.data, TroisClasses.class_labels, donneesTest, '1-PPV avec données orig comme représentants', TroisClasses.extent)
+        nb_neighbors_for_PPV = 5
+        classifiers.full_ppv(nb_neighbors_for_PPV, TroisClasses.data, TroisClasses.class_labels, donneesTest, f'{nb_neighbors_for_PPV}'+'-PPV avec données orig comme représentants', TroisClasses.extent)
 
         # 1-mean sur chacune des classes
+        nb_neighbors_for_kMean = 10
         # suivi d'un 1-PPV avec ces nouveaux représentants de classes
-        cluster_centers, cluster_labels = classifiers.full_kmean(1, allClasses, TroisClasses.class_labels, 'Représentants des 1-moy', TroisClasses.extent)
-        classifiers.full_ppv(1, cluster_centers, cluster_labels, donneesTest, '1-PPV sur le 1-moy', TroisClasses.extent, TroisClasses.data, TroisClasses.class_labels)
+        cluster_centers, cluster_labels = classifiers.full_kmean(nb_neighbors_for_kMean, allClasses, TroisClasses.class_labels, 'Représentants des '+f'{nb_neighbors_for_kMean}'+'-moy', TroisClasses.extent)
+        classifiers.full_ppv(1, cluster_centers, cluster_labels, donneesTest, '1-PPV sur le '+f'{nb_neighbors_for_kMean}'+'-moy', TroisClasses.extent, TroisClasses.data, TroisClasses.class_labels)
 
     if True: # TODO L3.E2
         # nn puis visualisation des frontières
-        n_hidden_layers = 5
+        n_hidden_layers = 2
         n_neurons = 5
         classifiers.full_nn(n_hidden_layers, n_neurons, TroisClasses.data, TroisClasses.class_labels, donneesTest,
                 f'NN {n_hidden_layers} layer(s) caché(s), {n_neurons} neurones par couche', TroisClasses.extent, TroisClasses.data, TroisClasses.class_labels)

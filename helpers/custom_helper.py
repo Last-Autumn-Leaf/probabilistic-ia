@@ -25,6 +25,12 @@ def d_pred_bin_f (image):
         result.append( np.argmax(np.bincount(image[:,:,i].reshape((256*256)))))
     return np.array(result)
 
+def d_pred_count_f (image):
+    result=[]
+    for i in range(3):
+        result.append(np.max(np.bincount(image[:,:,i].reshape((256*256)))))
+    return np.array(result)
+
 
 # ------ MODE NAMES :
 RGB = 'RGB'
@@ -41,6 +47,9 @@ d_mean_bin = 'mean bin'
 d_mean_bin_f = lambda x : np.mean(x,axis=(0,1))
 d_pred_bin = 'most predominant bin'
 
+d_pred_count = 'counting occurence of predominant bin'
+
+
 d_square_sum = 'square sum'
 d_square_sum_f = lambda x: np.sum(np.square(x)) / 256 ** 3
 
@@ -48,13 +57,14 @@ d_square_sum_f = lambda x: np.sum(np.square(x)) / 256 ** 3
 v_pred_bin = 'most predominant triplet bin'
 v_pred_bin_f=lambda x: getHighestFrequencyVector(x)
 
-all_var_names=[d_mean_bin,d_pred_bin,d_square_sum,v_pred_bin]
+all_var_names=[d_mean_bin,d_pred_bin,d_square_sum,v_pred_bin, d_pred_count]
 
 var_name2f= {
     d_mean_bin:d_mean_bin_f,
     d_pred_bin:d_pred_bin_f,
     d_square_sum:d_square_sum_f,
-    v_pred_bin:v_pred_bin_f
+    v_pred_bin:v_pred_bin_f,
+    d_pred_count:d_pred_count_f
 }
 associative_dims=[v_pred_bin]
 
@@ -113,6 +123,7 @@ class dimension:
 var_name2default_dim= {
     d_mean_bin:dimension(d_mean_bin,True),
     d_pred_bin:dimension(d_pred_bin,True),
+    d_pred_count:dimension(d_pred_count,False),
     d_square_sum:dimension(d_square_sum,True),
     v_pred_bin:dimension(v_pred_bin,False)
 }

@@ -357,9 +357,17 @@ class ImageCollection:
             ax.scatter(x, y, alpha=0.4,color=colors[i],marker='.')
 
             data_ellipse=np.array((x,y)).T
-            viewEllipse(data = data_ellipse,ax = ax, facecolor = colors[i],scale= 1,alpha=0.25)
+            # viewEllipse(data = data_ellipse,ax = ax, facecolor = colors[i],scale= 1,alpha=0.25)
 
         ax.set_title('')
 
         ax.set(xlabel=f"{class2detailed_repr[mode1][index1]}({var1})", ylabel=f"{class2detailed_repr[mode2][index2]}({var2})")
         #ax.axes.set_aspect('equal')
+    def GetCovMatrix(self, dimension_parameters, tracker,n_bins = 256):
+        for i, classes in enumerate(self.all_classes):
+            if i%1 ==0:
+                print(f"classe {i}")
+            tracker.update_dataset_size(len(classes))
+            self.getStat(classes.idx_list, tracker, n_bins=n_bins)
+            v = tracker.variables
+            a = v[0].data
