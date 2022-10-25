@@ -36,6 +36,7 @@ def d_pred_count_f (image):
 RGB = 'RGB'
 HSV = 'HSV'
 Lab = 'Lab'
+all_modes=[RGB,HSV,Lab]
 class2detailed_repr = {RGB: ['Red', 'Green', 'Blue','f'],
                        HSV: ['Hue', 'Saturation', 'Value','f'],
                        Lab: ['L', 'a', 'b','f']}
@@ -57,7 +58,8 @@ d_square_sum_f = lambda x: np.sum(np.square(x)) / 256 ** 3
 v_pred_bin = 'most predominant triplet bin'
 v_pred_bin_f=lambda x: getHighestFrequencyVector(x)
 
-all_var_names=[d_mean_bin,d_pred_bin,d_square_sum,v_pred_bin, d_pred_count]
+#d_square_sum,v_pred_bin
+all_var_names=[d_mean_bin,d_pred_bin, d_pred_count]
 
 var_name2f= {
     d_mean_bin:d_mean_bin_f,
