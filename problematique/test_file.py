@@ -24,22 +24,19 @@ def main():
     IC =ImageCollection()
 
 
-    # Ici on choisit les dimensions que l'on veut surveillé et calculer !
-    dim_name=[d_pred_bin,d_pred_count]
-    # petite fonction our initiliser avec les paramètres par défaut les dimensions
-    # Pour L'instant il n'y a qu'un seul paramètre qui est si on calcul la moyenne ou non !
-    # Donc pas vraiment utile.
-    # La classe dimension a besoin de connaitre la taille du dataset afin de pré-allouer la mémoire
-    mode_list = [RGB,Lab,HSV]
-    dimensions_list =[dimension(name = dim_name[1],mode = mode_list[1]),dimension(name = dim_name[0],mode = mode_list[1])]
+    mode_scatter1 = Lab
+    mode_scatter2 = Lab
+    dim_scatter1 = d_pred_bin
+    dim_scatter2 = d_pred_bin
+    dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1),dimension(name = dim_scatter2,mode = mode_scatter2)]
     tracker = VariablesTracker(dimensions_list)
 
-    d1=(d_pred_bin,mode_list[1],0)
-    d2=(d_pred_count,mode_list[1],0)
+    d1=(dim_scatter1,mode_scatter1,2)
+    d2=(dim_scatter2,mode_scatter2,1)
 
     with timeThat() :
         ...
-        IC.scatterGraph2D(d1,d2,tracker,n_bins=64)
+        IC.scatterGraph2D(d1,d2,tracker,n_bins=256)
 
     # M1 = IC.GetCovMatrix(dimension_parameters = dimensions_list,tracker = tracker, n_bins=256)
     #IC.scatterGraph2D
