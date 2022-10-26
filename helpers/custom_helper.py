@@ -2,7 +2,7 @@ import glob
 import os
 from collections import defaultdict
 import numpy as np
-
+np.random.seed(0)
 
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
@@ -188,6 +188,8 @@ class ClassesTracker :
         # liste de toutes les images
         image_folder = r"." + os.sep + "baseDeDonneesImages"
         _path = glob.glob(image_folder + os.sep + r"*.jpg")
+        _path.sort()
+        np.random.shuffle(_path)
         image_list = os.listdir(image_folder)
         # Filtrer pour juste garder les images
         image_list = [i for i in image_list if '.jpg' in i]
