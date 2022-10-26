@@ -3,7 +3,7 @@ import os
 from collections import defaultdict
 import numpy as np
 np.random.seed(0)
-
+N_CLASSES=3
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
     store = defaultdict(int)
@@ -23,13 +23,13 @@ def getHighestFrequencyVector(image):
 
 def d_pred_bin_f (image):
     result=[]
-    for i in range(3):
+    for i in range(MODE_SIZE):
         result.append( np.argmax(np.bincount(image[:,:,i].reshape((256*256)))))
     return np.array(result)
 
 def d_pred_count_f (image):
     result=[]
-    for i in range(3):
+    for i in range(MODE_SIZE):
         result.append(np.max(np.bincount(image[:,:,i].reshape((256*256)))))
     return np.array(result)
 
@@ -38,6 +38,7 @@ def d_pred_count_f (image):
 RGB = 'RGB'
 HSV = 'HSV'
 Lab = 'Lab'
+MODE_SIZE=3
 all_modes=[RGB,HSV,Lab]
 class2detailed_repr = {RGB: ['Red', 'Green', 'Blue','f'],
                        HSV: ['Hue', 'Saturation', 'Value','f'],
@@ -89,7 +90,7 @@ class dimension:
     def change_mode(self,mode):
         self.mode=mode
     def create_storage(self):
-        self.data = np.zeros((4 if self.isAssociative else 3, self.max_dataset_size))
+        self.data = np.zeros((N_CLASSES+1 if self.isAssociative else N_CLASSES, self.max_dataset_size))
         if self.isAvg:
             self.mean = np.zeros((self.data.shape[0], 1))
 
@@ -183,23 +184,25 @@ from skimage import io as skiio
 from skimage import color as skic
 from sklearn.model_selection import train_test_split as ttsplit
 import helpers.analysis as an
+
 class ClassesTracker :
     def __init__(self):
         # liste de toutes les images
         image_folder = r"." + os.sep + "baseDeDonneesImages"
         _path = glob.glob(image_folder + os.sep + r"*.jpg")
+        # To not be depedent of the OS-sort
         _path.sort()
         np.random.shuffle(_path)
-        image_list = os.listdir(image_folder)
+
+        #image_list = os.listdir(image_folder)
         # Filtrer pour juste garder les images
-        image_list = [i for i in image_list if '.jpg' in i]
+        #image_list = [i for i in image_list if '.jpg' in i]
         self.images = np.array([np.array(skiio.imread(image)) for image in _path])
-        self.n_class=3
         self.coast_id=[]
         self.forest_id=[]
         self.street_id=[]
-        self.class_labels=np.zeros((len(image_list),1)).astype('int32')
-        for i, name_file in enumerate(image_list):
+        self.class_labels=np.zeros((len(_path),1)).astype('int32')
+        for i, name_file in enumerate(_path):
             if "coast" in name_file:
                 self.coast_id.append(i)
                 self.class_labels[i]=0
@@ -327,10 +330,10 @@ class ClassesTracker :
 
     def get_data_classwise(self,n=250):
 
-        classes=[ self.all_classes[i][:n] for i in range(3)]
-        target=np.array([j for j in range(3) for i in range(n)])[:,None]
+        classes=[ self.all_classes[i][:n] for i in range(N_CLASSES)]
+        target=np.array([j for j in range(N_CLASSES) for i in range(n)])[:,None]
 
-        val_classes=[ self.all_classes[i][n:] for i in range(3)]
+        val_classes=[ self.all_classes[i][n:] for i in range(N_CLASSES)]
 
         val_target=[]
         val_idx=[]
@@ -340,7 +343,7 @@ class ClassesTracker :
         val_target=np.array(val_target)[:,None]
         val_data=np.zeros((len(val_idx),len(self.dims_list)))
 
-        data = np.zeros((self.n_class, n,len(self.dims_list)))
+        data = np.zeros((N_CLASSES, n,len(self.dims_list)))
 
         for i, dim in enumerate(self.dims_list):
             var = dim[0]
