@@ -29,7 +29,7 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
     nb_comb = 3 * nb_var * nb_mode
     nb_plot = math.comb(nb_comb, 2)
     length_plot = int(np.ceil(np.sqrt(nb_plot)))
-    fig, axs = plt.subplots(length_plot,length_plot, figsize = (30,10))
+    fig, axs = plt.subplots(length_plot,length_plot, figsize = (40,30))
     ### --- ###
 
     dimensions_list =[dimension(name = dim,mode = mode) for mode in mode_list for dim in var_list]
@@ -117,7 +117,7 @@ def main():
 
     ###
     mode_list = [Lab,HSV]
-    var_list = [d_pred_bin]
+    var_list = [d_mean_bin,d_pred_bin,d_pred_count]
     ###
 
     mode_scatter1 = HSV
