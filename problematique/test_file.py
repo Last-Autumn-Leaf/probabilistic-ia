@@ -1,12 +1,10 @@
-import time
-from datetime import  timedelta
+
 
 import numpy.random
 import math
 import itertools
 
 from ImageCollection import plt
-import numpy as np
 from ImageCollection import ImageCollection
 from helpers.custom_helper import *
 
@@ -23,12 +21,7 @@ def test_track_list(tracker):
 def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred_bin,d_pred_count],n_bins=256):
     colors = ['blue', 'green', 'black']
 
-    ### --- ###
-    pick_coast = np.arange(stop = len(IC_obj.coast_id))
-    pick_forest = np.arange(start = len(IC_obj.coast_id),stop = len(IC_obj.forest_id)+len(IC_obj.coast_id))
-    pick_street = np.arange(start =len(IC_obj.coast_id)+len(IC_obj.forest_id) ,stop = len(IC_obj.forest_id) + len(IC_obj.coast_id)+len(IC_obj.street_id))
-    pick_classes = [pick_coast,pick_forest,pick_street]
-    ### --- ###
+
 
     ### Taille du subplot generaliste ###
     nb_mode = len(mode_list)
@@ -44,8 +37,8 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
 
 
     tracker.update_dataset_size(len(IC_obj.image_list))
-    a=IC_obj.coast_id+IC_obj.forest_id+IC_obj.street_id
-    IC_obj.getStat(IC_obj.coast_id+IC_obj.forest_id+IC_obj.street_id, tracker, n_bins=n_bins)
+
+    IC_obj.getStat([i for i in range(len(IC_obj.image_list))], tracker, n_bins=n_bins)
 
 
     couple_dim = list(itertools.product(mode_list, var_list))
@@ -69,17 +62,17 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
 
 
 
-                        for idx_class, c_class in enumerate(pick_classes):
+                        for idx_class, c_class in enumerate(IC_obj.all_classes):
                             x = tracker.pick_var(var1, mode1, index1)[c_class]
                             y = tracker.pick_var(var2, mode2, index2)[c_class]
 
-                            axs[idx_graphe%length_plot,idx_graphe//length_plot].scatter(x, y, alpha=0.4, color=colors[idx_class], marker='.')
+                            axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.4, color=colors[idx_class], marker='.')
                         print(f"graphe {idx_graphe}")
     # x.set_title('')
 
                         # x.set_title('')
                         #
-                        axs[idx_graphe%length_plot,idx_graphe//length_plot].set(xlabel=f"{class2detailed_repr[mode1][index1]}({var1})",
+                        axs[idx_graphe//length_plot,idx_graphe%length_plot].set(xlabel=f"{class2detailed_repr[mode1][index1]}({var1})",
                                ylabel=f"{class2detailed_repr[mode2][index2]}({var2})")
                         idx_graphe += 1
         # for mode,var in couple_dim:
@@ -97,17 +90,17 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
                         index2 = ax2_param
 
 
-                        for idx_class, c_class in enumerate(pick_classes):
+                        for idx_class, c_class in enumerate(IC_obj.all_classes):
                             x = tracker.pick_var(var1, mode1, index1)[c_class]
                             y = tracker.pick_var(var2, mode2, index2)[c_class]
 
-                            axs[idx_graphe%length_plot, idx_graphe//length_plot].scatter(x, y, alpha=0.4, color=colors[idx_class],
+                            axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.4, color=colors[idx_class],
                                                                                   marker='.')
                         print(f"graphe {idx_graphe}")
 
                         # x.set_title('')
                         #
-                        axs[idx_graphe%length_plot,idx_graphe//length_plot].set(xlabel=f"{class2detailed_repr[mode1][index1]}({var1})",
+                        axs[idx_graphe//length_plot,idx_graphe%length_plot].set(xlabel=f"{class2detailed_repr[mode1][index1]}({var1})",
                                ylabel=f"{class2detailed_repr[mode2][index2]}({var2})")
                         idx_graphe += 1
             # for mode,var in couple_dim:
@@ -143,17 +136,6 @@ def main():
         AllGraphScatter(IC_obj=IC,mode_list=mode_list,var_list=var_list,n_bins=256)
 
     plt.show()
-
-
-from contextlib import contextmanager
-@contextmanager
-def timeThat(name=''):
-    try:
-        start = time.time()
-        yield ...
-    finally:
-        end = time.time()
-        print(name+' finished in ',timedelta(seconds=end-start))
 
 
 if __name__ == '__main__':

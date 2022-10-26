@@ -260,12 +260,12 @@ class ImageCollection:
                 images = skiio.imread(
                     ImageCollection.image_folder + os.sep + ImageCollection.image_list[indexes[num_images]])
 
-            if should_Compute[1]:
+            if should_Compute[1]: #HSV Mode
                 images_HSV = skic.rgb2hsv(images)
                 images_HSV = np.round(images_HSV / np.max(images_HSV) * (n_bins - 1)).astype('int32')
                 for var in tracker :
                     if var.mode==HSV :
-                        tracker.compute_for_image(images_HSV, num_images)
+                        tracker.compute_for_image(images_HSV, num_images,var)
 
             if should_Compute[2]:
                 # L [0,100],a,b [-127,127]
@@ -274,12 +274,12 @@ class ImageCollection:
                 images_LAB = images_LAB.astype('int32')
                 for var in tracker :
                     if var.mode==Lab :
-                        tracker.compute_for_image(images_LAB, num_images)
+                        tracker.compute_for_image(images_LAB, num_images,var)
             if  should_Compute[0]:
                 images = np.round(images / np.max(images) * (n_bins - 1)).astype('int32')
                 for var in tracker :
                     if var.mode==RGB :
-                        tracker.compute_for_image(images, num_images)
+                        tracker.compute_for_image(images, num_images,var)
 
 
 

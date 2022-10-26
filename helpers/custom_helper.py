@@ -121,7 +121,7 @@ class dimension:
         return self.mean[index]
 
     def __repr__(self):
-        return f"{self.name},{'associative' if self.isAssociative else'dissociative'}," \
+        return f"{self.name},{self.mode},{'associative' if self.isAssociative else'dissociative'}," \
                f"{'avg' if self.isAvg else'no-avg'},{self.max_dataset_size}"
 # Default values of dims
 var_name2default_dim= {
@@ -156,8 +156,8 @@ class VariablesTracker:
             if var.isAvg :
                 var.compute_mean()
 
-    def compute_for_image(self,image,index):
-        for var in self.variables :
+    def compute_for_image(self,image,index,var):
+            # We should only attack one var at a time
             debug=var_name2f[var.name](image)
             var[index]=debug
 
@@ -280,7 +280,7 @@ class ClassesTracker :
                 images_HSV = np.round(images_HSV / np.max(images_HSV) * (self.n_bins - 1)).astype('int32')
                 for var in self.tracker :
                     if var.mode==HSV :
-                        self.tracker.compute_for_image(images_HSV, i)
+                        self.tracker.compute_for_image(images_HSV, i,var)
 
             if should_Compute[2]:
                 # L [0,100],a,b [-127,127]
@@ -289,12 +289,12 @@ class ClassesTracker :
                 images_LAB = images_LAB.astype('int32')
                 for var in self.tracker :
                     if var.mode==Lab :
-                        self.tracker.compute_for_image(images_LAB, i)
+                        self.tracker.compute_for_image(images_LAB, i,var)
             if  should_Compute[0]:
                 images = np.round(images / np.max(images) * (self.n_bins - 1)).astype('int32')
                 for var in self.tracker :
                     if var.mode==RGB :
-                        self.tracker.compute_for_image(images, i)
+                        self.tracker.compute_for_image(images, i,var)
 
 
 
