@@ -1,6 +1,7 @@
 from helpers import classifiers
-from helpers.custom_helper import *
 import matplotlib.pyplot  as plt
+from helpers.custom_class import ClassesTracker
+
 if __name__=='__main__':
 
     CT = ClassesTracker()

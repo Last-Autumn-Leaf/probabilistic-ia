@@ -30,6 +30,8 @@ from matplotlib import cm
 import itertools
 import math
 
+from helpers.custom_helper import CLASS_COLOR_ARRAY
+
 
 class Extent:
     """
@@ -213,7 +215,7 @@ def view_classification_results(train_data, test1, c1, c2, glob_title, title1, t
     :return:
     """
     cmap = cm.get_cmap('seismic')
-    ccmap = lambda x: [['blue','green','black'][int(i)] for i in x]
+    ccmap = lambda x: [CLASS_COLOR_ARRAY[int(i)] for i in x]
     if np.asarray(test2).any():
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
         ax3.scatter(test2[:, 0], test2[:, 1], s=5, c=cmap(c3),alpha=0.3)

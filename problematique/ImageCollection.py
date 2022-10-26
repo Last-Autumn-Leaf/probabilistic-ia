@@ -9,7 +9,7 @@ Méthodes statiques: TODO JB move to helpers
     images_display: affiche quelques images identifiées en argument
     view_histogrammes: affiche les histogrammes de couleur de qq images identifiées en argument
 """
-import matplotlib
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -20,7 +20,7 @@ import matplotlib.cm as cm
 import pandas as pd
 
 from helpers.analysis import viewEllipse
-from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, ClassesTracker, class2detailed_repr
+from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, class2detailed_repr, CLASS_COLOR_ARRAY
 
 
 class ImageCollection:
@@ -239,7 +239,6 @@ class ImageCollection:
 
     def getStat(self,indexes,tracker,n_bins=256):
 
-
         should_Compute=[False,False,False]
         for var in tracker.variables :
             if var.mode==RGB :
@@ -288,7 +287,7 @@ class ImageCollection:
         return tracker
 
     # TODO refaire get DatasetTable
-    def getDatasetTable(self,tracker,current_mode='RGB',n_bins=256):
+    '''def getDatasetTable(self,tracker,current_mode='RGB',n_bins=256):
 
         fig, ax = plt.subplots(figsize=(10,5 ))
         # hide axes
@@ -327,6 +326,7 @@ class ImageCollection:
         fig.tight_layout()
         fig.suptitle(f"Dataset table infor for {n_bins} bins")
         #plt.show()
+'''
 
     def scatterGraph2D(self,dim1,dim2,tracker,n_bins=256):
         var1=dim1[0]
@@ -337,7 +337,7 @@ class ImageCollection:
         mode2=dim2[1]
         index2=dim2[2]
 
-        colors=['blue','green','black']
+        colors=CLASS_COLOR_ARRAY
         #colors={k:v for k,v in zip(self.all_classes,colors) }
         fig, ax = plt.subplots(1)
 
