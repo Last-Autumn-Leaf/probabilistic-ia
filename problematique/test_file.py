@@ -7,6 +7,7 @@ import itertools
 from ImageCollection import plt
 from ImageCollection import ImageCollection
 from helpers.custom_helper import *
+from helpers.analysis import viewEllipse
 
 def test_track_list(tracker):
         for var in tracker.variables  :
@@ -29,7 +30,7 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
     nb_comb = 3 * nb_var * nb_mode
     nb_plot = math.comb(nb_comb, 2)
     length_plot = int(np.ceil(np.sqrt(nb_plot)))
-    fig, axs = plt.subplots(length_plot,length_plot, figsize = (40,30))
+    fig, axs = plt.subplots(length_plot,length_plot, figsize = (50,40))
     ### --- ###
 
     dimensions_list =[dimension(name = dim,mode = mode) for mode in mode_list for dim in var_list]
@@ -66,7 +67,10 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
                             x = tracker.pick_var(var1, mode1, index1)[c_class]
                             y = tracker.pick_var(var2, mode2, index2)[c_class]
 
-                            axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.4, color=colors[idx_class], marker='.')
+                            axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.2, color=colors[idx_class], marker='.')
+                            data_ellipse = np.array((x, y)).T
+                            viewEllipse(data=data_ellipse, ax=axs[idx_graphe//length_plot,idx_graphe%length_plot], facecolor=colors[idx_class], scale=1, alpha=0.25)
+
                         print(f"graphe {idx_graphe}")
     # x.set_title('')
 
@@ -94,8 +98,11 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
                             x = tracker.pick_var(var1, mode1, index1)[c_class]
                             y = tracker.pick_var(var2, mode2, index2)[c_class]
 
-                            axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.4, color=colors[idx_class],
+                            axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.2, color=colors[idx_class],
                                                                                   marker='.')
+                            data_ellipse = np.array((x, y)).T
+                            viewEllipse(data = data_ellipse,ax = axs[idx_graphe//length_plot,idx_graphe%length_plot], facecolor = colors[idx_class],scale= 1,alpha=0.25)
+
                         print(f"graphe {idx_graphe}")
 
                         # x.set_title('')

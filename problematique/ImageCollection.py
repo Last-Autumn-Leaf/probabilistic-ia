@@ -352,7 +352,7 @@ class ImageCollection:
             ax.scatter(x, y, alpha=0.4,color=colors[i],marker='.')
 
             data_ellipse=np.array((x,y)).T
-            # viewEllipse(data = data_ellipse,ax = ax, facecolor = colors[i],scale= 1,alpha=0.25)
+            viewEllipse(data = data_ellipse,ax = ax, facecolor = colors[i],scale= 1,alpha=0.25)
 
         ax.set_title('')
 
