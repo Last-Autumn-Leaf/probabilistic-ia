@@ -213,26 +213,27 @@ def view_classification_results(train_data, test1, c1, c2, glob_title, title1, t
     :return:
     """
     cmap = cm.get_cmap('seismic')
+    ccmap = lambda x: [['blue','green','black'][int(i)] for i in x]
     if np.asarray(test2).any():
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
-        ax3.scatter(test2[:, 0], test2[:, 1], s=5, c=cmap(c3))
+        ax3.scatter(test2[:, 0], test2[:, 1], s=5, c=cmap(c3),alpha=0.3)
         ax3.set_title(title3)
         ax3.set_xlim([extent.xmin, extent.xmax])
         ax3.set_ylim([extent.ymin, extent.ymax])
-        ax3.axes.set_aspect('equal')
+        #ax3.axes.set_aspect('equal')
     else:
         fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.suptitle(glob_title)
-    ax1.scatter(train_data[:, 0], train_data[:, 1], s=5, c=c1, cmap='viridis')
-    ax2.scatter(test1[:, 0], test1[:, 1], s=5, c=c2, cmap='viridis')
+    ax1.scatter(train_data[:, 0], train_data[:, 1], s=5, c=ccmap(c1),alpha=0.3)
+    ax2.scatter(test1[:, 0], test1[:, 1], s=5, c=c2, cmap='viridis',alpha=0.3)
     ax1.set_title(title1)
     ax2.set_title(title2)
     ax1.set_xlim([extent.xmin, extent.xmax])
     ax1.set_ylim([extent.ymin, extent.ymax])
     ax2.set_xlim([extent.xmin, extent.xmax])
     ax2.set_ylim([extent.ymin, extent.ymax])
-    ax1.axes.set_aspect('equal')
-    ax2.axes.set_aspect('equal')
+    #ax1.axes.set_aspect('equal')
+    #ax2.axes.set_aspect('equal')
 
 
 

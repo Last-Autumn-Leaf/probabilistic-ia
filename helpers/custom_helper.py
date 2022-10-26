@@ -218,11 +218,12 @@ class ClassesTracker :
         self.validation_data_idx = temp[1]
         self.validation_target = temp[3]
 
-        dimensions_list = [dimension(name = d_pred_bin,mode = HSV)]
+        #This should be coherent
+        dimensions_list = [dimension(name = d_pred_bin,mode = HSV),dimension(name = d_pred_count,mode = HSV)]
+        self.dims_list=[(d_pred_bin,HSV,0),(d_pred_count,HSV,0)]
+
         self.tracker = VariablesTracker(dimensions_list)
         self.tracker.update_dataset_size(len(self.images))
-
-        self.dims_list=[(d_pred_bin,HSV,0),(d_pred_bin,HSV,1)]
 
         self.n_bins=256
         with timeThat('Pre processing of all the data'):
