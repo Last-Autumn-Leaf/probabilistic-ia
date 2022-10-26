@@ -236,7 +236,7 @@ class ClassesTracker :
 
         # génération de données aléatoires
         ndonnees = 5000
-        self.donneesTest = an.genDonneesTest(ndonnees, self.extent)
+        self.donneesTest = an.genDonneesTest(ndonnees, self.extent,n=len(self.dims_list))
 
 
     def pre_process_all_data(self):

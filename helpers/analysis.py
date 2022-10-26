@@ -354,10 +354,10 @@ def view3D(data3D, targets, title):
 
 
 
-def genDonneesTest(ndonnees, extent):
+def genDonneesTest(ndonnees, extent,n=2):
     # génération de n données aléatoires 2D sur une plage couverte par extent
-    return np.transpose(np.array([(extent.xmax - extent.xmin) * np.random.random(ndonnees) + extent.xmin,
-                                         (extent.ymax - extent.ymin) * np.random.random(ndonnees) + extent.ymin]))
+    return np.transpose(np.array([( max(extent.xmax,extent.ymax) - min(extent.xmin,extent.ymin)) *
+                                    np.random.random(ndonnees) + min(extent.xmin,extent.ymin) for i in range( n)]))
 
 
 # usage: OUT = scale_data(IN, MINMAX)
