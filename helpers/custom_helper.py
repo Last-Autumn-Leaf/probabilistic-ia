@@ -219,8 +219,10 @@ class ClassesTracker :
         self.validation_target = temp[3]
 
         #This should be coherent
-        dimensions_list = [dimension(name = d_pred_bin,mode = HSV),dimension(name = d_pred_count,mode = HSV)]
-        self.dims_list=[(d_pred_bin,HSV,0),(d_pred_count,HSV,0)]
+        dimensions_list = [dimension(name = d_mean_bin,mode = Lab),dimension(name = d_pred_count,mode = Lab)
+                           ,dimension(name = d_mean_bin,mode = HSV),dimension(name = d_pred_bin,mode = HSV)]
+        self.dims_list=[(d_mean_bin,Lab,1),(d_mean_bin,Lab,2),(d_pred_count,Lab,1)
+                        ,(d_mean_bin,HSV,1),(d_pred_bin,HSV,2),(d_pred_bin,HSV,0)]
 
         self.tracker = VariablesTracker(dimensions_list)
         self.tracker.update_dataset_size(len(self.images))
