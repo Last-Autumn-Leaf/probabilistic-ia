@@ -59,7 +59,7 @@ class ImageCollection:
             coast_id.append(i)
         elif "forest" in name_file :
             forest_id.append(i)
-        else  :
+        else:
             street_id.append(i)
 
     # Number of bins per color channel pour les histogrammes (et donc la quantification de niveau autres formats)

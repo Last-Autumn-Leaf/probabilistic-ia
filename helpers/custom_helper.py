@@ -192,11 +192,11 @@ class ClassesTracker :
         # Filtrer pour juste garder les images
         image_list = [i for i in image_list if '.jpg' in i]
         self.images = np.array([np.array(skiio.imread(image)) for image in _path])
-
+        self.n_class=3
         self.coast_id=[]
         self.forest_id=[]
         self.street_id=[]
-        self.class_labels=np.zeros((len(image_list)))
+        self.class_labels=np.zeros((len(image_list),1)).astype('int32')
         for i, name_file in enumerate(image_list):
             if "coast" in name_file:
                 self.coast_id.append(i)
@@ -210,6 +210,7 @@ class ClassesTracker :
 
         self.all_classes= [self.coast_id,self.forest_id,self.street_id]
 
+
         temp = ttsplit( [i for i in range (len(self.class_labels))],
                         self.class_labels, test_size=0.2, shuffle=True)
         self.training_data_idx = temp[0]
@@ -221,13 +222,18 @@ class ClassesTracker :
         self.tracker = VariablesTracker(dimensions_list)
         self.tracker.update_dataset_size(len(self.images))
 
-        self.dims_list=[(d_pred_bin,HSV,0),(d_pred_bin,HSV,1),(d_pred_bin,HSV,2)]
+        self.dims_list=[(d_pred_bin,HSV,0),(d_pred_bin,HSV,1)]
 
         self.n_bins=256
         with timeThat('Pre processing of all the data'):
             self.pre_process_all_data()
 
-        self.extent=an.Extent()
+        plist =[self.tracker.pick_var(dim[0],dim[1],dim[2]) for dim in self.dims_list]
+        self.extent=an.Extent(ptList=np.stack(plist,axis=1))
+
+        # génération de données aléatoires
+        ndonnees = 5000
+        self.donneesTest = an.genDonneesTest(ndonnees, self.extent)
 
 
     def pre_process_all_data(self):
@@ -301,12 +307,12 @@ class ClassesTracker :
         else:
             idx=self.validation_data_idx
 
-        data=np.zeros((len(self.dims_list),len(idx)))
+        data=np.zeros( (len(idx),len(self.dims_list)) )
         for i,dim in enumerate(self.dims_list) :
             var = dim[0]
             mode = dim[1]
             index = dim[2]
-            data[i]=self.tracker.pick_var(var,mode,index)[idx]
+            data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
         return data
     def get_training_data(self):
         return self.get_data()
@@ -314,6 +320,38 @@ class ClassesTracker :
     def get_test_data(self):
         return self.get_data(False)
 
+    def get_data_classwise(self,n=250):
+
+        classes=[ self.all_classes[i][:n] for i in range(3)]
+        target=np.array([j for j in range(3) for i in range(n)])[:,None]
+
+        val_classes=[ self.all_classes[i][n:] for i in range(3)]
+
+        val_target=[]
+        val_idx=[]
+        for i,val in enumerate(val_classes):
+            val_idx+=val
+            val_target+= [i]*len(val)
+        val_target=np.array(val_target)[:,None]
+        val_data=np.zeros((len(val_idx),len(self.dims_list)))
+
+        data = np.zeros((self.n_class, n,len(self.dims_list)))
+
+        for i, dim in enumerate(self.dims_list):
+            var = dim[0]
+            mode = dim[1]
+            index = dim[2]
+
+            temp=self.tracker.pick_var(var, mode, index)
+            val_data[:,i]=temp[val_idx]
+            for j,class_idx in enumerate(classes):
+                data[j,:,i] = temp[class_idx]
+
+        return data,target,val_data,val_target
+
+    def get_target_data(self,train=True):
+        return self.class_labels[self.training_data_idx
+            if train else self.validation_data_idx]
 
 
     def __len__(self):
