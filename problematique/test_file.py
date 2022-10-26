@@ -6,6 +6,7 @@ import itertools
 
 from ImageCollection import plt
 from ImageCollection import ImageCollection
+from helpers.custom_class import dimension, VariablesTracker
 from helpers.custom_helper import *
 from helpers.analysis import viewEllipse
 
