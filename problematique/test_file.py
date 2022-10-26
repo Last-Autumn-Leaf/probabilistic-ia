@@ -1,5 +1,4 @@
-import time
-from datetime import  timedelta
+
 
 import numpy.random
 
@@ -24,8 +23,8 @@ def main():
     IC =ImageCollection()
 
 
-    mode_scatter1 = Lab
-    mode_scatter2 = Lab
+    mode_scatter1 = HSV
+    mode_scatter2 = HSV
     dim_scatter1 = d_pred_bin
     dim_scatter2 = d_pred_bin
     dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1),dimension(name = dim_scatter2,mode = mode_scatter2)]
@@ -44,15 +43,7 @@ def main():
     plt.show()
 
 
-from contextlib import contextmanager
-@contextmanager
-def timeThat(name=''):
-    try:
-        start = time.time()
-        yield ...
-    finally:
-        end = time.time()
-        print(name+' finished in ',timedelta(seconds=end-start))
+
 
 
 if __name__ == '__main__':

@@ -1,3 +1,5 @@
+import glob
+import os
 from collections import defaultdict
 import numpy as np
 
@@ -176,12 +178,155 @@ class VariablesTracker:
             s+=f"{var}" +"\n"
         return s
 
+
+from skimage import io as skiio
+from skimage import color as skic
+from sklearn.model_selection import train_test_split as ttsplit
+import helpers.analysis as an
 class ClassesTracker :
-    def __init__(self,name,idx_list):
-        self.name = name
-        self.idx_list=idx_list
+    def __init__(self):
+        # liste de toutes les images
+        image_folder = r"." + os.sep + "baseDeDonneesImages"
+        _path = glob.glob(image_folder + os.sep + r"*.jpg")
+        image_list = os.listdir(image_folder)
+        # Filtrer pour juste garder les images
+        image_list = [i for i in image_list if '.jpg' in i]
+        self.images = np.array([np.array(skiio.imread(image)) for image in _path])
+
+        self.coast_id=[]
+        self.forest_id=[]
+        self.street_id=[]
+        self.class_labels=np.zeros((len(image_list)))
+        for i, name_file in enumerate(image_list):
+            if "coast" in name_file:
+                self.coast_id.append(i)
+                self.class_labels[i]=0
+            elif "forest" in name_file:
+                self.forest_id.append(i)
+                self.class_labels[i]=1
+            else:
+                self.street_id.append(i)
+                self.class_labels[i]=2
+
+        self.all_classes= [self.coast_id,self.forest_id,self.street_id]
+
+        temp = ttsplit( [i for i in range (len(self.class_labels))],
+                        self.class_labels, test_size=0.2, shuffle=True)
+        self.training_data_idx = temp[0]
+        self.training_target = temp[2]
+        self.validation_data_idx = temp[1]
+        self.validation_target = temp[3]
+
+        dimensions_list = [dimension(name = d_pred_bin,mode = HSV)]
+        self.tracker = VariablesTracker(dimensions_list)
+        self.tracker.update_dataset_size(len(self.images))
+
+        self.dims_list=[(d_pred_bin,HSV,0),(d_pred_bin,HSV,1),(d_pred_bin,HSV,2)]
+
+        self.n_bins=256
+        with timeThat('Pre processing of all the data'):
+            self.pre_process_all_data()
+
+        self.extent=an.Extent()
+
+
+    def pre_process_all_data(self):
+        def rescaleHistLab( LabImage, n_bins):
+            """
+            Helper function
+            La représentation Lab requiert un rescaling avant d'histogrammer parce que ce sont des floats!
+            """
+
+            # Constantes de la représentation Lab
+            class LabCte:  # TODO JB : utiliser an.Extent?
+                min_L: int = 0
+                max_L: int = 100
+                min_ab: int = -110
+                max_ab: int = 110
+
+            # Création d'une image vide
+            imageLabRescale = np.zeros(LabImage.shape)
+            # Quantification de L en n_bins niveaux
+            imageLabRescale[:, :, 0] = np.round(
+                (LabImage[:, :, 0] - LabCte.min_L) * (n_bins - 1) / (
+                        LabCte.max_L - LabCte.min_L))  # L has all values between 0 and 100
+            # Quantification de a et b en n_bins niveaux
+            imageLabRescale[:, :, 1:3] = np.round(
+                (LabImage[:, :, 1:3] - LabCte.min_ab) * (n_bins - 1) / (
+                        LabCte.max_ab - LabCte.min_ab))  # a and b have all values between -110 and 110
+            return imageLabRescale
+
+
+        should_Compute = [False, False, False]
+        for var in self.tracker.variables:
+            if var.mode == RGB:
+                should_Compute[0] = True
+            elif var.mode == HSV:
+                should_Compute[1] = True
+            elif var.mode == Lab:
+                should_Compute[2] = True
+
+        for i,images in enumerate(self.images):
+
+            if should_Compute[1]:
+                images_HSV = skic.rgb2hsv(images)
+                images_HSV = np.round(images_HSV / np.max(images_HSV) * (self.n_bins - 1)).astype('int32')
+                for var in self.tracker :
+                    if var.mode==HSV :
+                        self.tracker.compute_for_image(images_HSV, i)
+
+            if should_Compute[2]:
+                # L [0,100],a,b [-127,127]
+                images_LAB = skic.rgb2lab(images)
+                images_LAB = rescaleHistLab(images_LAB, self.n_bins)
+                images_LAB = images_LAB.astype('int32')
+                for var in self.tracker :
+                    if var.mode==Lab :
+                        self.tracker.compute_for_image(images_LAB, i)
+            if  should_Compute[0]:
+                images = np.round(images / np.max(images) * (self.n_bins - 1)).astype('int32')
+                for var in self.tracker :
+                    if var.mode==RGB :
+                        self.tracker.compute_for_image(images, i)
+
+
+
+        self.tracker.compute_mean()
+
+        return self.tracker
+
+    def get_data(self,train=True):
+        if train :
+            idx=self.training_data_idx
+        else:
+            idx=self.validation_data_idx
+
+        data=np.zeros((len(self.dims_list),len(idx)))
+        for i,dim in enumerate(self.dims_list) :
+            var = dim[0]
+            mode = dim[1]
+            index = dim[2]
+            data[i]=self.tracker.pick_var(var,mode,index)[idx]
+        return data
+    def get_training_data(self):
+        return self.get_data()
+
+    def get_test_data(self):
+        return self.get_data(False)
+
+
 
     def __len__(self):
-        return len(self.idx_list)
+        return len(self.images)
 
-
+from contextlib import contextmanager
+import time
+from datetime import  timedelta
+@contextmanager
+def timeThat(name=''):
+    try:
+        start = time.time()
+        yield ...
+    finally:
+        end = time.time()
+        print(name+' finished in ',timedelta(seconds=end-start))

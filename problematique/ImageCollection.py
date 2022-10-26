@@ -65,11 +65,7 @@ class ImageCollection:
     # Number of bins per color channel pour les histogrammes (et donc la quantification de niveau autres formats)
     n_bins = 256  #
 
-    Coast_class=ClassesTracker('coast',coast_id)
-    Forest_class=ClassesTracker('forest',forest_id)
-    Street_class=ClassesTracker('street',street_id)
-
-    all_classes=[Coast_class,Forest_class,Street_class]
+    all_classes=[coast_id,forest_id,street_id]
 
     def images_display(self,indexes):
         """
@@ -114,7 +110,6 @@ class ImageCollection:
             (LabImage[:, :, 1:3] - LabCte.min_ab) * (n_bins - 1) / (
                     LabCte.max_ab - LabCte.min_ab))  # a and b have all values between -110 and 110
         return imageLabRescale
-
 
     def view_histogrammes(self,indexes):
         """
@@ -350,7 +345,7 @@ class ImageCollection:
             if i%1 ==0:
                 print(f"classe {i}")
             tracker.update_dataset_size(len(classes))
-            self.getStat(classes.idx_list,tracker,n_bins=n_bins)
+            self.getStat(classes,tracker,n_bins=n_bins)
             x=tracker.pick_var(var1,mode1,index1)
             y=tracker.pick_var(var2,mode2,index2)
 
