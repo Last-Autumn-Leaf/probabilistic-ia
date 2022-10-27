@@ -118,7 +118,7 @@ from skimage import io as skiio
 from skimage import color as skic
 from sklearn.model_selection import train_test_split as ttsplit
 from helpers.analysis import Extent,genDonneesTest
-PREVENT_OS_SORT = True
+PREVENT_OS_SORT = False
 class ClassesTracker :
     def __init__(self):
         # liste de toutes les images
@@ -162,9 +162,10 @@ class ClassesTracker :
 
         #This should be coherent
         dimensions_list = [dimension(name = d_mean_bin,mode = Lab),dimension(name = d_pred_count,mode = Lab)
-                           ,dimension(name = d_mean_bin,mode = HSV),dimension(name = d_pred_bin,mode = HSV)]
+                           ,dimension(name = d_mean_bin,mode = HSV),dimension(name = d_pred_bin,mode = HSV),
+                           dimension(name = d_fractal,mode = RGB)]
         self.dims_list=[(d_mean_bin,Lab,1),(d_mean_bin,Lab,2),(d_pred_count,Lab,1)
-                        ,(d_mean_bin,HSV,1),(d_pred_bin,HSV,2),(d_pred_bin,HSV,0)]
+                        ,(d_mean_bin,HSV,1),(d_pred_bin,HSV,2),(d_pred_bin,HSV,0),(d_fractal,RGB,0)]
 
         self.tracker = VariablesTracker(dimensions_list)
         self.tracker.update_dataset_size(len(self.images))
