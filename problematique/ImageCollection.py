@@ -38,7 +38,7 @@ class ImageCollection:
     image_list = [i for i in image_list if '.jpg' in i]
 
 
-    all_images_loaded = False
+    all_images_loaded = True
     images = []
 
     # # Créer un array qui contient toutes les images
@@ -240,6 +240,9 @@ class ImageCollection:
 
 
     def getStat(self,indexes,tracker,n_bins=256):
+        if type(indexes) == int:
+            indexes = [indexes]
+
         tracker.update_dataset_size(len(indexes))
         should_Compute=[False,False,False]
         for var in tracker.variables :
@@ -250,9 +253,10 @@ class ImageCollection:
             elif var.mode==Lab :
                 should_Compute[2]=True
 
-        if type(indexes) == int:
-            indexes = [indexes]
+
         for num_images in range(len(indexes)):
+            if num_images/len(indexes)*100 % 20 ==0:
+                print(num_images,'/',len(indexes))
             # charge une image si nécessaire
             if ImageCollection.all_images_loaded:
                 #images = ImageCollection.images[num_images] # ancienne ligne de code
@@ -263,7 +267,7 @@ class ImageCollection:
 
             if should_Compute[1]: #HSV Mode
                 images_HSV = skic.rgb2hsv(images)
-                images_HSV = np.round(images_HSV / np.max(images_HSV) * (n_bins - 1)).astype('int32')
+                images_HSV = np.round(images_HSV / np.max(images_HSV) * (n_bins - 1))
                 for var in tracker :
                     if var.mode==HSV :
                         tracker.compute_for_image(images_HSV, num_images,var)
@@ -272,12 +276,12 @@ class ImageCollection:
                 # L [0,100],a,b [-127,127]
                 images_LAB = skic.rgb2lab(images)
                 images_LAB = self.rescaleHistLab(images_LAB, n_bins)
-                images_LAB = images_LAB.astype('int32')
+                images_LAB = images_LAB
                 for var in tracker :
                     if var.mode==Lab :
                         tracker.compute_for_image(images_LAB, num_images,var)
             if  should_Compute[0]:
-                images = np.round(images / np.max(images) * (n_bins - 1)).astype('int32')
+                images = np.round(images / np.max(images) * (n_bins - 1))
                 for var in tracker :
                     if var.mode==RGB :
                         tracker.compute_for_image(images, num_images,var)

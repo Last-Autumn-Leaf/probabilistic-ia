@@ -10,6 +10,7 @@ np.random.seed(0)
 N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
+    image=image.astype('int32')
     store = defaultdict(int)
     x, y, z = image.shape
     max_bin = 0
@@ -24,12 +25,14 @@ def getHighestFrequencyVector(image):
     return np.append(np.array(max_vector),max_bin)
 
 def d_pred_bin_f (image):
+    image=image.astype('int32')
     result=[]
     for i in range(MODE_SIZE):
         result.append( np.argmax(np.bincount(image[:,:,i].reshape((256*256)))))
     return np.array(result)
 
 def d_pred_count_f (image):
+    image=image.astype('int32')
     result=[]
     for i in range(MODE_SIZE):
         result.append(np.max(np.bincount(image[:,:,i].reshape((256*256)))))
@@ -55,7 +58,6 @@ def fractal_dimension(array, max_box_size=None, min_box_size=1, n_samples=20, n_
     """
     ###
 
-    array = array.astype('float64')
     array = skic.rgb2gray(array)
     array = canny(array)
     # plt.imshow(array)
@@ -118,7 +120,7 @@ def fractal_dimension(array, max_box_size=None, min_box_size=1, n_samples=20, n_
 
 #Only works inRGB
 def number_of_blob(image,max_sigma=30,th=0.1) :
-    image=image.astype('float64')
+
     image_gray = rgb2gray(image)
     blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
     return [len(blobs_doh)]*3
@@ -156,7 +158,7 @@ v_pred_bin = 'most predominant triplet bin'
 v_pred_bin_f=lambda x: getHighestFrequencyVector(x)
 
 #d_square_sum,v_pred_bin
-all_var_names=[d_mean_bin,d_pred_bin, d_pred_count,d_fractal,d_n_blob]
+all_var_names=[d_mean_bin,d_pred_bin, d_pred_count,d_fractal]
 
 var_name2f= {
     d_mean_bin:d_mean_bin_f,

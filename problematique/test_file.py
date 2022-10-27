@@ -105,36 +105,30 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
 
     fig.savefig('bruteforce.pdf', bbox_inches='tight')
 
-
-
-def main():
-    np.random.seed(0)
-    IC =ImageCollection()
+def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
+    IC = ImageCollection()
     IC.AjoutSubClasses()
 
-
-    mode_scatter1 = RGB
-    mode_scatter2 = RGB
-    dim_scatter1 = d_n_blob
-    dim_scatter2 = d_mean_bin
-    dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1)]
+    dimensions_list = [dimension(name=dim, mode=mode)]
     tracker = VariablesTracker(dimensions_list)
-    n_bin=20
 
-    with timeThat('Get Stats') :
-        IC.getStat([i for i in range(980)],tracker)
+    with timeThat('Get Stats'):
+        IC.getStat([i for i in range(980)], tracker)
 
     fig = plt.figure()
-    fig.suptitle('Bar histogram{dim_scatter1}', fontsize=20)
+    fig.suptitle(f'Bar histogram{dim}', fontsize=20)
     ax = fig.subplots(N_CLASSES, 1)
-    data=tracker.pick_var(dim_scatter1,mode_scatter1,0)
-    data=np.round(data/max(data)*n_bin)
-    for i,axe in enumerate(ax):
-        x=data[IC.all_classes[i]]
-        y=np.bincount(x.astype('int32'),minlength=n_bin+1)
-        axe.bar(x=[i for i in range(n_bin+1)], height=y,align='edge', color=CLASS_COLOR_ARRAY[i])
+    data = tracker.pick_var(dim, mode, dim_index)
+    data = np.round(data / max(data) * n_bin)
+    for i, axe in enumerate(ax):
+        x = data[IC.all_classes[i]]
+        y = np.bincount(x.astype('int32'), minlength=n_bin + 1)
+        axe.bar(x=[i for i in range(n_bin + 1)], height=y, align='edge', color=CLASS_COLOR_ARRAY[i])
 
     plt.show()
+def main():
+    np.random.seed(0)
+    bar_hist(mode=RGB, dim=d_mean_bin, dim_index=0, n_bin=20)
 
 
 if __name__ == '__main__':
