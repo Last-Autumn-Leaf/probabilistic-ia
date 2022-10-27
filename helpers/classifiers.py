@@ -63,8 +63,12 @@ def compute_prob_dens_gaussian(train_data, test_data1, test_data2):
     retourne un tableau de la valeur de la densité de prob pour chaque point dans test_data1 et un autre pour
         test_data2 par rapport à chaque classe
     """
-    train_data = np.array(train_data)
-    x, y, z = train_data.shape
+    if type (train_data)==list :
+        x = len(train_data)
+        z =len( train_data[0][0])
+    else :
+        train_data = np.array(train_data)
+        x, y, z = train_data.shape
 
     # bâtit la liste de toutes les stats
     # i.e. un modèle
@@ -246,9 +250,15 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
     print(
         f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classified2))}%')
 
-    train_data = np.array(train_data)
-    x, y, z = train_data.shape
-    train_data = train_data.reshape(x*y, z)
+    if type(train_data)== list :
+        temp=[]
+        for arr in train_data :
+            temp+=arr.tolist()
+        train_data=np.array(temp)
+    else:
+        train_data = np.array(train_data)
+        x, y, z = train_data.shape
+        train_data = train_data.reshape(x*y, z)
     #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
     an.view_classification_results(train_data, donnee_test, train_classes, classified / error_class / .75,
                                    f'Classification de Bayes, {title}', 'Données originales', 'Données aléatoires',

@@ -1,3 +1,5 @@
+import numpy as np
+
 from helpers.custom_helper import *
 
 #---------------------- Dimension tracker class
@@ -214,7 +216,6 @@ class ClassesTracker :
                 should_Compute[2] = True
 
         for i, image in enumerate(images):
-
             if should_Compute[1]:
                 images_HSV = skic.rgb2hsv(image)
                 images_HSV = np.round(images_HSV / np.max(images_HSV) * (n_bins - 1)).astype('int32')
@@ -261,7 +262,7 @@ class ClassesTracker :
     def get_test_data(self):
         return self.get_data(False)
 
-    def get_data_classwise(self,n=.9):
+    def get_data_classwise(self,n=.8):
 
         classes=[ self.all_classes[i][:int(n*len(self.all_classes[i]))] for i in range(N_CLASSES)]
         target=[]
@@ -278,8 +279,8 @@ class ClassesTracker :
             val_target+= [i]*len(val)
         val_target=np.array(val_target)[:,None]
         val_data=np.zeros((len(val_idx),len(self.dims_list)))
-
-        data = np.zeros((N_CLASSES, n,len(self.dims_list)))
+        data = [ np.zeros((len(classes[i]),len(self.dims_list))) for i in range(N_CLASSES)]
+        #data = np.zeros((N_CLASSES, n,len(self.dims_list)))
 
         for i, dim in enumerate(self.dims_list):
             var = dim[0]
@@ -289,7 +290,7 @@ class ClassesTracker :
             temp=self.tracker.pick_var(var, mode, index)
             val_data[:,i]=temp[val_idx]
             for j,class_idx in enumerate(classes):
-                data[j,:,i] = temp[class_idx]
+                data[j][:,i] = temp[class_idx]
 
         return data,target,val_data,val_target
 
