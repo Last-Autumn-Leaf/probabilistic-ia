@@ -10,7 +10,6 @@ np.random.seed(0)
 N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
-    image=image.astype('int32')
     store = defaultdict(int)
     x, y, z = image.shape
     max_bin = 0
@@ -39,84 +38,50 @@ def d_pred_count_f (image):
     return np.array(result)
 
 # Only works in RGB
-def fractal_dimension(array, max_box_size=None, min_box_size=1, n_samples=20, n_offsets=0, plot=False):
-    """Calculates the fractal dimension of a 3D numpy array.
-        Pour nous, on le fait sur 2D array obtenu par edge detection de canny
-    Args:
-        array (np.ndarray): The array to calculate the fractal dimension of.
-        max_box_size (int): The largest box size, given as the power of 2 so that
-                            2**max_box_size gives the sidelength of the largest box.
-        min_box_size (int): The smallest box size, given as the power of 2 so that
-                            2**min_box_size gives the sidelength of the smallest box.
-                            Default value 1.
-        n_samples (int): number of scales to measure over.
-        n_offsets (int): number of offsets to search over to find the smallest set N(s) to
-                       cover  all voxels>0.
-        plot (bool): set to true to see the analytical plot of a calculation.
+def fractal_dimension(Z, threshold=100): # Z = images
+    def rgb2gray(rgb):
+        r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+        gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
+        return gray
 
+    Z = Z.astype('float64')
+    Z = rgb2gray(Z)
 
-    """
-    ###
+    # Only for 2d image
+    assert(len(Z.shape) == 2)
 
-    array = skic.rgb2gray(array)
-    array = canny(array)
-    # plt.imshow(array)
-    # plt.show()
-    array = np.expand_dims(array,axis = 2)
-    ###
+    # From https://github.com/rougier/numpy-100 (#87)
+    def boxcount(Z, k):
+        S = np.add.reduceat(
+            np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
+                               np.arange(0, Z.shape[1], k), axis=1)
 
-    # determine the scales to measure on
+        # We count non-empty (0) and non-full boxes (k*k)
+        return len(np.where((S > 0) & (S < k*k))[0])
 
-    if max_box_size == None:
-        # default max size is the largest power of 2 that fits in the smallest dimension of the array:
-        max_box_size = int(np.floor(np.log2(np.min(array.shape))))
-    scales = np.floor(np.logspace(max_box_size, min_box_size, num=n_samples, base=2))
-    scales = np.unique(scales)  # remove duplicates that could occur as a result of the floor
+    # Transform Z into a binary array
+    Z = (Z < threshold)
 
-    # get the locations of all non-zero pixels
-    locs = np.where(array > 0)
-    voxels = np.array([(x, y, z) for x, y, z in zip(*locs)])
+    # Minimal dimension of image
+    p = min(Z.shape)
 
-    # count the minimum amount of boxes touched
-    Ns = []
-    # loop over all scales
-    for scale in scales:
-        touched = []
-        if n_offsets == 0:
-            offsets = [0]
-        else:
-            offsets = np.linspace(0, scale, n_offsets)
-        # search over all offsets
-        for offset in offsets:
-            bin_edges = [np.arange(0, i, scale) for i in array.shape]
-            bin_edges = [np.hstack([0 - offset, x + offset]) for x in bin_edges]
-            H1, e = np.histogramdd(voxels, bins=bin_edges)
-            touched.append(np.sum(H1 > 0))
-        Ns.append(touched)
-    Ns = np.array(Ns)
+    # Greatest power of 2 less than or equal to p
+    n = 2**np.floor(np.log(p)/np.log(2))
 
-    # From all sets N found, keep the smallest one at each scale
-    Ns = Ns.min(axis=1)
+    # Extract the exponent
+    n = int(np.log(n)/np.log(2))
 
-    # Only keep scales at which Ns changed
-    scales = np.array([np.min(scales[Ns == x]) for x in np.unique(Ns)])
+    # Build successive box sizes (from 2**n down to 2**1)
+    sizes = 2**np.arange(n, 1, -1)
 
-    Ns = np.unique(Ns)
-    Ns = Ns[Ns > 0]
-    scales = scales[:len(Ns)]
-    # perform fit
-    coeffs = np.polyfit(np.log(1 / scales), np.log(Ns), 1)
+    # Actual box counting with decreasing size
+    counts = []
+    for size in sizes:
+        counts.append(boxcount(Z, size))
 
-    # make plot
-    if plot:
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.scatter(np.log(1 / scales), np.log(np.unique(Ns)), c="teal", label="Measured ratios")
-        ax.set_ylabel("$\log N(\epsilon)$")
-        ax.set_xlabel("$\log 1/ \epsilon$")
-        fitted_y_vals = np.polyval(coeffs, np.log(1 / scales))
-        ax.plot(np.log(1 / scales), fitted_y_vals, "k--", label=f"Fit: {np.round(coeffs[0], 3)}X+{coeffs[1]}")
-        ax.legend();
-    return (coeffs[0])*3
+    # Fit the successive log(sizes) with log (counts)
+    coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
+    return -coeffs[0]*3
 
 #Only works inRGB
 def number_of_blob(image,max_sigma=30,th=0.1) :
@@ -149,7 +114,7 @@ d_square_sum_f = lambda x: np.sum(np.square(x)) / 256 ** 3
 
 # Special RGB dims
 d_fractal = 'fractal dimension'
-d_fractal_f = lambda x: fractal_dimension(array = x)
+d_fractal_f = lambda x: fractal_dimension(Z = x)
 d_n_blob = 'numbers of blobs'
 d_n_blob_f = lambda x : number_of_blob(x)
 
