@@ -367,3 +367,24 @@ class ImageCollection:
             v = tracker.variables
             a = v[0].data
 
+
+    def AjoutSubClasses(self):
+        dimensions_list = [dimension(name=d_pred_bin, mode=HSV)]
+        tracker = VariablesTracker(dimensions_list)
+        tracker.update_dataset_size(len(self.coast_id))
+
+        self.getStat(self.coast_id, tracker, n_bins=6)
+
+        pred_bin =tracker.pick_var(dim=d_pred_bin, mode='HSV', index_mode=0)
+
+        coast_sunset = []
+        for id, bin in enumerate(pred_bin):
+            if bin < 2:
+                coast_sunset.append(id)
+
+        self.coast_sunset_id = np.array(self.coast_id)[coast_sunset]
+        for indexes in self.coast_sunset_id:
+            self.coast_id.remove(indexes)
+        self.coast_sunset_id = list(self.coast_sunset_id)
+        self.all_classes.append(self.coast_sunset_id)  ## ajout de la coast sunset dans
+        ## all classes juste apres coast_id
