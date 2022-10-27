@@ -17,7 +17,7 @@ class dimension:
     def change_mode(self,mode):
         self.mode=mode
     def create_storage(self):
-        self.data = np.zeros((N_CLASSES+1 if self.isAssociative else N_CLASSES, self.max_dataset_size))
+        self.data = np.zeros((MODE_SIZE+1 if self.isAssociative else MODE_SIZE, self.max_dataset_size))
         if self.isAvg:
             self.mean = np.zeros((self.data.shape[0], 1))
 
@@ -146,7 +146,8 @@ class ClassesTracker :
                 self.class_labels[i]=2
 
         self.all_classes= [self.coast_id,self.forest_id,self.street_id]
-
+        # DO SUB CLASSES
+        self.AjoutSubClasses()
 
         temp = ttsplit( [i for i in range (len(self.class_labels))],
                         self.class_labels, test_size=0.2, shuffle=True)
@@ -166,7 +167,7 @@ class ClassesTracker :
 
         self.n_bins=256
         with timeThat('Pre processing of all the data'):
-            self.pre_process_all_data()
+            self.pre_process_all_data(self.images)
 
         plist =[self.tracker.pick_var(dim[0],dim[1],dim[2]) for dim in self.dims_list]
         self.extent=Extent(ptList=np.stack(plist,axis=1))
@@ -176,7 +177,7 @@ class ClassesTracker :
         self.donneesTest = genDonneesTest(ndonnees, self.extent,n=len(self.dims_list))
 
 
-    def pre_process_all_data(self):
+    def pre_process_all_data(self,images,n_bins=256):
         def rescaleHistLab( LabImage, n_bins):
             """
             Helper function
@@ -212,28 +213,28 @@ class ClassesTracker :
             elif var.mode == Lab:
                 should_Compute[2] = True
 
-        for i,images in enumerate(self.images):
+        for i, image in enumerate(images):
 
             if should_Compute[1]:
-                images_HSV = skic.rgb2hsv(images)
-                images_HSV = np.round(images_HSV / np.max(images_HSV) * (self.n_bins - 1)).astype('int32')
+                images_HSV = skic.rgb2hsv(image)
+                images_HSV = np.round(images_HSV / np.max(images_HSV) * (n_bins - 1)).astype('int32')
                 for var in self.tracker :
                     if var.mode==HSV :
                         self.tracker.compute_for_image(images_HSV, i,var)
 
             if should_Compute[2]:
                 # L [0,100],a,b [-127,127]
-                images_LAB = skic.rgb2lab(images)
-                images_LAB = rescaleHistLab(images_LAB, self.n_bins)
+                images_LAB = skic.rgb2lab(image)
+                images_LAB = rescaleHistLab(images_LAB, n_bins)
                 images_LAB = images_LAB.astype('int32')
                 for var in self.tracker :
                     if var.mode==Lab :
                         self.tracker.compute_for_image(images_LAB, i,var)
             if  should_Compute[0]:
-                images = np.round(images / np.max(images) * (self.n_bins - 1)).astype('int32')
+                image = np.round(image / np.max(image) * (n_bins - 1)).astype('int32')
                 for var in self.tracker :
                     if var.mode==RGB :
-                        self.tracker.compute_for_image(images, i,var)
+                        self.tracker.compute_for_image(image, i, var)
 
 
 
@@ -260,12 +261,15 @@ class ClassesTracker :
     def get_test_data(self):
         return self.get_data(False)
 
-    def get_data_classwise(self,n=250):
+    def get_data_classwise(self,n=.9):
 
-        classes=[ self.all_classes[i][:n] for i in range(N_CLASSES)]
-        target=np.array([j for j in range(N_CLASSES) for i in range(n)])[:,None]
+        classes=[ self.all_classes[i][:int(n*len(self.all_classes[i]))] for i in range(N_CLASSES)]
+        target=[]
+        for i,classe in enumerate(classes ):
+            target+=[i]*len(classe)
+        target=np.array(target)[:,None]
 
-        val_classes=[ self.all_classes[i][n:] for i in range(N_CLASSES)]
+        val_classes=[ self.all_classes[i][len(classes[i]):] for i in range(N_CLASSES)]
 
         val_target=[]
         val_idx=[]
@@ -297,3 +301,24 @@ class ClassesTracker :
     def __len__(self):
         return len(self.images)
 
+
+    def AjoutSubClasses(self):
+        dimensions_list = [dimension(name=d_pred_bin, mode=HSV)]
+        self.tracker = VariablesTracker(dimensions_list)
+        self.tracker.update_dataset_size(len(self.coast_id))
+        self.pre_process_all_data(self.images[self.coast_id],6)
+
+
+        pred_bin = self.tracker.pick_var(dim=d_pred_bin, mode='HSV', index_mode=0)
+
+        coast_sunset = []
+        for id, bin in enumerate(pred_bin):
+            if bin < 2:
+                coast_sunset.append(id)
+
+        self.coast_sunset_id = np.array(self.coast_id)[coast_sunset]
+        for indexes in self.coast_sunset_id:
+            self.coast_id.remove(indexes)
+        self.coast_sunset_id = list(self.coast_sunset_id)
+        self.all_classes.append(self.coast_sunset_id)  ## ajout de la coast sunset dans
+        ## all classes juste apres coast_id

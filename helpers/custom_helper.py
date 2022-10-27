@@ -1,7 +1,7 @@
 from collections import defaultdict
 import numpy as np
 np.random.seed(0)
-N_CLASSES=3
+N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
     store = defaultdict(int)
@@ -82,4 +82,4 @@ def timeThat(name=''):
         print(name+' finished in ',timedelta(seconds=end-start))
 
 
-CLASS_COLOR_ARRAY=['blue','green','black']
+CLASS_COLOR_ARRAY=['blue','green','black','red']

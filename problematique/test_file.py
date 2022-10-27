@@ -21,9 +21,8 @@ def test_track_list(tracker):
                 print('No mean')
 
 def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred_bin,d_pred_count],n_bins=256):
-    colors = ['blue', 'green', 'black']
 
-
+    colors = CLASS_COLOR_ARRAY
 
     ### Taille du subplot generaliste ###
     nb_mode = len(mode_list)
@@ -37,11 +36,8 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
     dimensions_list =[dimension(name = dim,mode = mode) for mode in mode_list for dim in var_list]
     tracker = VariablesTracker(dimensions_list)
 
-
     tracker.update_dataset_size(len(IC_obj.image_list))
-
     IC_obj.getStat([i for i in range(len(IC_obj.image_list))], tracker, n_bins=n_bins)
-
 
     couple_dim = list(itertools.product(mode_list, var_list))
     idx_graphe = 0
@@ -140,8 +136,9 @@ def main():
     d2=(dim_scatter2,mode_scatter2,2)
 
     with timeThat() :
-        IC.scatterGraph2D(d1,d2,tracker,n_bins=256)
+        IC.AjoutSsClasses()
         AllGraphScatter(IC_obj=IC,mode_list=mode_list,var_list=var_list,n_bins=256)
+        IC.scatterGraph2D(d1, d2, tracker, n_bins=256)
 
     plt.show()
 

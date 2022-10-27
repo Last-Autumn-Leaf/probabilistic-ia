@@ -20,7 +20,9 @@ import matplotlib.cm as cm
 import pandas as pd
 
 from helpers.analysis import viewEllipse
-from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, class2detailed_repr, CLASS_COLOR_ARRAY
+from helpers.custom_class import dimension, VariablesTracker
+from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, class2detailed_repr, CLASS_COLOR_ARRAY, \
+    d_pred_bin
 
 
 class ImageCollection:
@@ -280,8 +282,6 @@ class ImageCollection:
                     if var.mode==RGB :
                         tracker.compute_for_image(images, num_images,var)
 
-
-
             tracker.compute_mean()
 
         return tracker
@@ -366,3 +366,4 @@ class ImageCollection:
             self.getStat(classes.idx_list, tracker, n_bins=n_bins)
             v = tracker.variables
             a = v[0].data
+
