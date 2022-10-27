@@ -124,10 +124,10 @@ def main():
     var_list = [d_mean_bin,d_pred_bin,d_pred_count]
     ###
 
-    mode_scatter1 = HSV
-    mode_scatter2 = HSV
-    dim_scatter1 = d_pred_bin
-    dim_scatter2 = d_pred_bin
+    mode_scatter1 = RGB
+    mode_scatter2 = RGB
+    dim_scatter1 = d_fractal
+    dim_scatter2 = d_fractal
     dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1),dimension(name = dim_scatter2,mode = mode_scatter2)]
     tracker = VariablesTracker(dimensions_list)
 
@@ -136,8 +136,8 @@ def main():
     d2=(dim_scatter2,mode_scatter2,2)
 
     with timeThat() :
-        IC.AjoutSubClasses()
-        AllGraphScatter(IC_obj=IC,mode_list=mode_list,var_list=var_list,n_bins=256)
+        # IC.AjoutSubClasses()
+        # AllGraphScatter(IC_obj=IC,mode_list=mode_list,var_list=var_list,n_bins=256)
         IC.scatterGraph2D(d1, d2, tracker, n_bins=256)
 
     plt.show()
