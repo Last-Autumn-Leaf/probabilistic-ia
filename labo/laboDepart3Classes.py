@@ -50,14 +50,14 @@ def main():
     ndonnees = 5000
     donneesTest = an.genDonneesTest(ndonnees, TroisClasses.extent)
     # Changer le flag dans les sections pertinentes pour chaque partie de laboratoire
-    if True: # TODO L2.E2.2
+    if False: # TODO L2.E2.2
 
         # classification
         # Bayes
         #                           (train_data, train_classes, donnee_test, title, extent, test_data, test_classes)
         classifiers.full_Bayes_risk(allClasses, TroisClasses.class_labels, donneesTest, 'Bayes risque #1', TroisClasses.extent, TroisClasses.data, TroisClasses.class_labels)
 
-    if False: # TODO L2.E3
+    if True: # TODO L2.E3
         # 1-PPV avec comme représentants de classes l'ensemble des points déjà classés
         #           full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, datatest2=None, classestest2=None)
         nb_neighbors_for_PPV = 5
