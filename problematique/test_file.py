@@ -6,19 +6,11 @@ import itertools
 
 from ImageCollection import plt
 from ImageCollection import ImageCollection
-from helpers.custom_class import dimension, VariablesTracker
+from helpers.custom_class import dimension, VariablesTracker, getDefaultVar
 from helpers.custom_helper import *
 from helpers.analysis import viewEllipse
 
-def test_track_list(tracker):
-        for var in tracker.variables  :
-            print('________________________')
-            print(var)
-            print('\tdata:\n',var.data) # les données brutes de taille (3 ou 4) x datase_size
-            if var.isAvg :
-                print('\tmean:\n',var.mean) #les données moyennées de taille (3 ou 4) x 1
-            else:
-                print('No mean')
+
 
 def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred_bin,d_pred_count],n_bins=256):
 
@@ -118,28 +110,30 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
 def main():
     np.random.seed(0)
     IC =ImageCollection()
+    IC.AjoutSubClasses()
 
-    ###
-    mode_list = [Lab,HSV]
-    var_list = [d_mean_bin,d_pred_bin,d_pred_count]
-    ###
 
     mode_scatter1 = RGB
     mode_scatter2 = RGB
     dim_scatter1 = d_n_blob
-    dim_scatter2 = d_n_blob
-    dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1),dimension(name = dim_scatter2,mode = mode_scatter2)]
+    dim_scatter2 = d_mean_bin
+    dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1)]
+    dimensions_list=[getDefaultVar(d_mean_bin,980)]
     tracker = VariablesTracker(dimensions_list)
+    n_bin=20
 
+    with timeThat('Get Stats') :
+        IC.getStat([i for i in range(980)],tracker)
 
-    d1=(dim_scatter1,mode_scatter1,0)
-    d2=(dim_scatter2,mode_scatter2,1)
-
-    with timeThat() :
-        ...
-        # IC.AjoutSubClasses()
-        # AllGraphScatter(IC_obj=IC,mode_list=mode_list,var_list=var_list,n_bins=256)
-        # IC.scatterGraph2D(d1, d2, tracker, n_bins=256)
+    fig = plt.figure()
+    fig.suptitle('Bar histogram{dim_scatter1}', fontsize=20)
+    ax = fig.subplots(3, 1)
+    data=tracker.pick_var(dim_scatter1,mode_scatter1,0)
+    data=np.round(data/max(data)*n_bin)
+    for i,axe in enumerate(ax):
+        x=data[IC.all_classes[i]]
+        y=np.bincount(x.astype('int32'),minlength=n_bin)
+        axe.bar(x=[i for i in range(n_bin)], height=y,align='edge', color=CLASS_COLOR_ARRAY[i])
 
     plt.show()
 
