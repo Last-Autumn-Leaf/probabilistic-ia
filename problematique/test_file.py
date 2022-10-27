@@ -126,14 +126,14 @@ def main():
 
     mode_scatter1 = RGB
     mode_scatter2 = RGB
-    dim_scatter1 = d_fractal
-    dim_scatter2 = d_fractal
+    dim_scatter1 = d_n_blob
+    dim_scatter2 = d_n_blob
     dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1),dimension(name = dim_scatter2,mode = mode_scatter2)]
     tracker = VariablesTracker(dimensions_list)
 
 
     d1=(dim_scatter1,mode_scatter1,0)
-    d2=(dim_scatter2,mode_scatter2,2)
+    d2=(dim_scatter2,mode_scatter2,1)
 
     with timeThat() :
         ...

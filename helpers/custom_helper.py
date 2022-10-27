@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from skimage import color as skic
-from skimage.feature import canny
+from skimage.color import rgb2gray
+from skimage.feature import canny, blob_doh
 
 np.random.seed(0)
 N_CLASSES=4
@@ -34,7 +35,7 @@ def d_pred_count_f (image):
         result.append(np.max(np.bincount(image[:,:,i].reshape((256*256)))))
     return np.array(result)
 
-
+# Only works in RGB
 def fractal_dimension(array, max_box_size=None, min_box_size=1, n_samples=20, n_offsets=0, plot=False):
     """Calculates the fractal dimension of a 3D numpy array.
         Pour nous, on le fait sur 2D array obtenu par edge detection de canny
@@ -63,7 +64,6 @@ def fractal_dimension(array, max_box_size=None, min_box_size=1, n_samples=20, n_
     ###
 
     # determine the scales to measure on
-
 
     if max_box_size == None:
         # default max size is the largest power of 2 that fits in the smallest dimension of the array:
@@ -116,6 +116,13 @@ def fractal_dimension(array, max_box_size=None, min_box_size=1, n_samples=20, n_
         ax.legend();
     return (coeffs[0])*3
 
+#Only works inRGB
+def number_of_blob(image,max_sigma=30,th=0.1) :
+    image=image.astype('float64')
+    image_gray = rgb2gray(image)
+    blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
+    return [len(blobs_doh)]*3
+
 # ------ MODE NAMES :
 RGB = 'RGB'
 HSV = 'HSV'
@@ -135,18 +142,21 @@ d_pred_bin = 'most predominant bin'
 
 d_pred_count = 'counting occurence of predominant bin'
 
-
 d_square_sum = 'square sum'
 d_square_sum_f = lambda x: np.sum(np.square(x)) / 256 ** 3
 
+# Special RGB dims
 d_fractal = 'fractal dimension'
 d_fractal_f = lambda x: fractal_dimension(array = x)
+d_n_blob = 'numbers of blobs'
+d_n_blob_f = lambda x : number_of_blob(x)
+
 # Associative variable means they calculate always using the 3 dimensions of a pixel
 v_pred_bin = 'most predominant triplet bin'
 v_pred_bin_f=lambda x: getHighestFrequencyVector(x)
 
 #d_square_sum,v_pred_bin
-all_var_names=[d_mean_bin,d_pred_bin, d_pred_count,d_fractal]
+all_var_names=[d_mean_bin,d_pred_bin, d_pred_count,d_fractal,d_n_blob]
 
 var_name2f= {
     d_mean_bin:d_mean_bin_f,
@@ -154,7 +164,8 @@ var_name2f= {
     d_square_sum:d_square_sum_f,
     v_pred_bin:v_pred_bin_f,
     d_pred_count:d_pred_count_f,
-    d_fractal:d_fractal_f
+    d_fractal:d_fractal_f,
+    d_n_blob:d_n_blob_f
 }
 associative_dims=[v_pred_bin]
 
