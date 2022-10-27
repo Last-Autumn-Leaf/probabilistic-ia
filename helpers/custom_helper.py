@@ -2,7 +2,7 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 
-from skimage import color as skic
+
 from skimage.color import rgb2gray
 from skimage.feature import canny, blob_doh
 
@@ -38,7 +38,10 @@ def d_pred_count_f (image):
     return np.array(result)
 
 # Only works in RGB
-def fractal_dimension(Z, threshold=100): # Z = images
+fractal_thr=100
+def fractal_dimension(Z, threshold=None): # Z = images
+    if threshold ==None:
+        threshold=fractal_thr
     def rgb2gray(rgb):
         r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
         gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
