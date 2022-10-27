@@ -80,6 +80,9 @@ def fractal_dimension(Z, threshold=100): # Z = images
         counts.append(boxcount(Z, size))
 
     # Fit the successive log(sizes) with log (counts)
+    if 0 in counts :
+        return 0
+
     coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
     return -coeffs[0]*3
 
