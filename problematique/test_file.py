@@ -115,10 +115,9 @@ def main():
 
     mode_scatter1 = RGB
     mode_scatter2 = RGB
-    dim_scatter1 = d_fractal
+    dim_scatter1 = d_n_blob
     dim_scatter2 = d_mean_bin
     dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1)]
-    dimensions_list=[getDefaultVar(d_mean_bin,980)]
     tracker = VariablesTracker(dimensions_list)
     n_bin=20
 

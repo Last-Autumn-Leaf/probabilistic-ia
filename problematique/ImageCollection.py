@@ -240,7 +240,7 @@ class ImageCollection:
 
 
     def getStat(self,indexes,tracker,n_bins=256):
-
+        tracker.update_dataset_size(len(indexes))
         should_Compute=[False,False,False]
         for var in tracker.variables :
             if var.mode==RGB :
