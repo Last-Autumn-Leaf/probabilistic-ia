@@ -115,7 +115,7 @@ def main():
 
     mode_scatter1 = RGB
     mode_scatter2 = RGB
-    dim_scatter1 = d_n_blob
+    dim_scatter1 = d_fractal
     dim_scatter2 = d_mean_bin
     dimensions_list =[dimension(name = dim_scatter1,mode = mode_scatter1)]
     dimensions_list=[getDefaultVar(d_mean_bin,980)]
@@ -127,13 +127,13 @@ def main():
 
     fig = plt.figure()
     fig.suptitle('Bar histogram{dim_scatter1}', fontsize=20)
-    ax = fig.subplots(3, 1)
+    ax = fig.subplots(N_CLASSES, 1)
     data=tracker.pick_var(dim_scatter1,mode_scatter1,0)
     data=np.round(data/max(data)*n_bin)
     for i,axe in enumerate(ax):
         x=data[IC.all_classes[i]]
-        y=np.bincount(x.astype('int32'),minlength=n_bin)
-        axe.bar(x=[i for i in range(n_bin)], height=y,align='edge', color=CLASS_COLOR_ARRAY[i])
+        y=np.bincount(x.astype('int32'),minlength=n_bin+1)
+        axe.bar(x=[i for i in range(n_bin+1)], height=y,align='edge', color=CLASS_COLOR_ARRAY[i])
 
     plt.show()
 
