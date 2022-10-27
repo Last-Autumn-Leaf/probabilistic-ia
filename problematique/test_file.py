@@ -4,7 +4,6 @@ import numpy.random
 import math
 import itertools
 
-from ImageCollection import plt
 from ImageCollection import ImageCollection
 from helpers.custom_class import dimension, VariablesTracker, getDefaultVar
 from helpers.custom_helper import *

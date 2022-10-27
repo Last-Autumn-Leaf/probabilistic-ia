@@ -6,7 +6,7 @@ from skimage import color as skic
 from skimage.color import rgb2gray
 from skimage.feature import canny, blob_doh
 
-np.random.seed(0)
+
 N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):

@@ -115,10 +115,11 @@ class VariablesTracker:
 import os
 import glob
 from skimage import io as skiio
+from skimage import io as skiio
 from skimage import color as skic
 from sklearn.model_selection import train_test_split as ttsplit
 from helpers.analysis import Extent,genDonneesTest
-PREVENT_OS_SORT = False
+PREVENT_OS_SORT = True
 class ClassesTracker :
     def __init__(self):
         # liste de toutes les images
