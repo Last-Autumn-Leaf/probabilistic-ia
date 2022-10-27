@@ -35,6 +35,8 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
     idx_graphe = 0
 
     nb_graph_sqrt = len(couple_dim)
+
+
     # nb_graph_sqrt = 1
     for couple1 in range(nb_graph_sqrt):
         for couple2 in range(couple1,nb_graph_sqrt):
@@ -50,17 +52,20 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
                         mode2 = couple_dim[couple2][0]
                         index2 = ax2_param
 
+                        if var1 ==d_fractal and mode1!=RGB and index1!=0 or \
+                                var2 ==d_fractal and mode2!=RGB and index2!=0 :
+                            ...
+                        else :
 
+                            for idx_class, c_class in enumerate(IC_obj.all_classes):
+                                x = tracker.pick_var(var1, mode1, index1)[c_class]
+                                y = tracker.pick_var(var2, mode2, index2)[c_class]
 
-                        for idx_class, c_class in enumerate(IC_obj.all_classes):
-                            x = tracker.pick_var(var1, mode1, index1)[c_class]
-                            y = tracker.pick_var(var2, mode2, index2)[c_class]
+                                axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.2, color=colors[idx_class], marker='.')
+                                data_ellipse = np.array((x, y)).T
+                                viewEllipse(data=data_ellipse, ax=axs[idx_graphe//length_plot,idx_graphe%length_plot], facecolor=colors[idx_class], scale=1, alpha=0.25)
 
-                            axs[idx_graphe//length_plot,idx_graphe%length_plot].scatter(x, y, alpha=0.2, color=colors[idx_class], marker='.')
-                            data_ellipse = np.array((x, y)).T
-                            viewEllipse(data=data_ellipse, ax=axs[idx_graphe//length_plot,idx_graphe%length_plot], facecolor=colors[idx_class], scale=1, alpha=0.25)
-
-                        print(f"graphe {idx_graphe}")
+                            print(f"graphe {idx_graphe}")
     # x.set_title('')
 
                         # x.set_title('')
@@ -116,7 +121,7 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
         IC.getStat([i for i in range(980)], tracker)
 
     fig = plt.figure()
-    fig.suptitle(f'Bar histogram{dim}', fontsize=20)
+    fig.suptitle(f'Bar histogram {dim}', fontsize=20)
     ax = fig.subplots(N_CLASSES, 1)
     data = tracker.pick_var(dim, mode, dim_index)
     data = np.round(data / max(data) * n_bin)
@@ -128,7 +133,7 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
     plt.show()
 def main():
     np.random.seed(0)
-    bar_hist(mode=RGB, dim=d_mean_bin, dim_index=0, n_bin=20)
+    AllGraphScatter(IC_obj=ImageCollection(),var_list=all_var_names)
 
 
 if __name__ == '__main__':

@@ -150,7 +150,8 @@ class ClassesTracker :
 
         self.all_classes= [self.coast_id,self.forest_id,self.street_id]
         # DO SUB CLASSES
-        self.AjoutSubClasses()
+        if N_CLASSES >3 :
+            self.AjoutSubClasses()
 
         temp = ttsplit( [i for i in range (len(self.class_labels))],
                         self.class_labels, test_size=0.2, shuffle=True)

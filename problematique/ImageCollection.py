@@ -38,7 +38,7 @@ class ImageCollection:
     image_list = [i for i in image_list if '.jpg' in i]
 
 
-    all_images_loaded = True
+    all_images_loaded = False
     images = []
 
     # # Créer un array qui contient toutes les images
@@ -68,6 +68,7 @@ class ImageCollection:
     n_bins = 256  #
 
     all_classes=[coast_id,forest_id,street_id]
+
 
     def images_display(self,indexes):
         """
