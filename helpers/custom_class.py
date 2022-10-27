@@ -118,15 +118,16 @@ from skimage import io as skiio
 from skimage import color as skic
 from sklearn.model_selection import train_test_split as ttsplit
 from helpers.analysis import Extent,genDonneesTest
-
+PREVENT_OS_SORT = True
 class ClassesTracker :
     def __init__(self):
         # liste de toutes les images
         image_folder = r"." + os.sep + "baseDeDonneesImages"
         _path = glob.glob(image_folder + os.sep + r"*.jpg")
         # To not be depedent of the OS-sort
-        _path.sort()
-        np.random.shuffle(_path)
+        if PREVENT_OS_SORT :
+            _path.sort()
+            np.random.shuffle(_path)
 
         #image_list = os.listdir(image_folder)
         # Filtrer pour juste garder les images
