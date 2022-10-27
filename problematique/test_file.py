@@ -136,9 +136,10 @@ def main():
     d2=(dim_scatter2,mode_scatter2,2)
 
     with timeThat() :
+        ...
         # IC.AjoutSubClasses()
         # AllGraphScatter(IC_obj=IC,mode_list=mode_list,var_list=var_list,n_bins=256)
-        IC.scatterGraph2D(d1, d2, tracker, n_bins=256)
+        # IC.scatterGraph2D(d1, d2, tracker, n_bins=256)
 
     plt.show()
 

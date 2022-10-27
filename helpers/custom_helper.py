@@ -54,8 +54,11 @@ def fractal_dimension(array, max_box_size=None, min_box_size=1, n_samples=20, n_
     """
     ###
 
+    array = array.astype('float64')
     array = skic.rgb2gray(array)
     array = canny(array)
+    # plt.imshow(array)
+    # plt.show()
     array = np.expand_dims(array,axis = 2)
     ###
 
