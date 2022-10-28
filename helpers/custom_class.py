@@ -335,3 +335,28 @@ class ClassesTracker :
         self.coast_sunset_id = list(self.coast_sunset_id)
         self.all_classes.append(self.coast_sunset_id)  ## ajout de la coast sunset dans
         ## all classes juste apres coast_id
+
+    '''def get_data(self,train=True):
+        if train :
+            idx=self.training_data_idx
+        else:
+            idx=self.validation_data_idx
+
+        data=np.zeros( (len(idx),len(self.dims_list)) )
+        for i,dim in enumerate(self.dims_list) :
+            var = dim[0]
+            mode = dim[1]
+            index = dim[2]
+            data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
+        return data
+    def get_training_data(self):
+        return self.get_data()
+
+    def get_test_data(self):
+        return self.get_data(False)
+
+    def get_target_data(self,train=True):
+        return self.class_labels[self.training_data_idx
+            if train else self.validation_data_idx]
+
+    '''
