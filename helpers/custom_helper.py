@@ -156,3 +156,16 @@ def timeThat(name=''):
 
 
 CLASS_COLOR_ARRAY=['blue','green','black','red']
+
+
+def arrange_train_data(train_data):
+    if type(train_data)== list :
+        temp=[]
+        for arr in train_data :
+            temp+=arr.tolist()
+        train_data=np.array(temp)
+    else:
+        train_data = np.array(train_data)
+        x, y, z = train_data.shape
+        train_data = train_data.reshape(x*y, z)
+    return train_data

@@ -115,7 +115,6 @@ class VariablesTracker:
 import os
 import glob
 from skimage import io as skiio
-from skimage import io as skiio
 from skimage import color as skic
 from sklearn.model_selection import train_test_split as ttsplit
 from helpers.analysis import Extent,genDonneesTest
@@ -305,7 +304,6 @@ class ClassesTracker :
 
     def __len__(self):
         return len(self.images)
-
 
     def AjoutSubClasses(self):
         dimensions_list = [dimension(name=d_pred_bin, mode=HSV)]

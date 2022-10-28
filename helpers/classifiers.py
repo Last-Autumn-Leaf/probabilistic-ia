@@ -53,6 +53,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 
 import helpers.analysis as an
+from helpers.custom_helper import arrange_train_data
 
 
 def compute_prob_dens_gaussian(train_data, test_data1, test_data2):
@@ -137,8 +138,12 @@ def kmean_alg(n_clusters, data):
     Retourne la suite des représentants de classes et leur étiquette
     Documentation: https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
     """
-    data = np.array(data)
-    x, y, z = data.shape
+    if type(data) == list:
+        x = len(data)
+        z = len(data[0][0])
+    else:
+        train_data = np.array(data)
+        x, y, z = train_data.shape
 
     cluster_centers = []
     cluster_labels = np.zeros((n_clusters * x, 1))
@@ -250,15 +255,7 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
     print(
         f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classified2))}%')
 
-    if type(train_data)== list :
-        temp=[]
-        for arr in train_data :
-            temp+=arr.tolist()
-        train_data=np.array(temp)
-    else:
-        train_data = np.array(train_data)
-        x, y, z = train_data.shape
-        train_data = train_data.reshape(x*y, z)
+    train_data = arrange_train_data(train_data)
     #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
     an.view_classification_results(train_data, donnee_test, train_classes, classified / error_class / .75,
                                    f'Classification de Bayes, {title}', 'Données originales', 'Données aléatoires',
@@ -300,9 +297,7 @@ def full_kmean(n_clusters, train_data, train_classes, title, extent):
     """
     cluster_centers, cluster_labels = kmean_alg(n_clusters, train_data)
 
-    train_data = np.array(train_data)
-    x, y, z = train_data.shape
-    train_data = train_data.reshape(x * y, z)
+    train_data = arrange_train_data(train_data)
 
     #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
     an.view_classification_results(train_data, cluster_centers, train_classes, cluster_labels, title, 'Données d\'origine',
