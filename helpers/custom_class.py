@@ -247,7 +247,7 @@ class ClassesTracker :
             data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
         return data
 
-    def get_data_classwise(self,n=.8):
+    def get_data_classwise(self,n=0.84):
 
         classes=[ self.all_classes[i][:int(n*len(self.all_classes[i]))] for i in range(N_CLASSES)]
         target=[]

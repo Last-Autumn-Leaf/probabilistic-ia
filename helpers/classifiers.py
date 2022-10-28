@@ -252,7 +252,7 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
     error_indexes = calc_erreur_classification(test_classes, classified2)
     classified2[error_indexes] = error_class
-    #print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classified2))}%')
+    print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classified2))}%')
 
     train_data = arrange_train_data(train_data)
     #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
@@ -280,14 +280,15 @@ def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, d
 
         error_indexes = calc_erreur_classification(classestest2, predictions2.reshape(classestest2.shape))
         predictions2[error_indexes] = error_class
-        #print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classestest2))}%')
-    #an.view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
+        print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classestest2))}%')
+   # an.view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
     if plot :
         an.view_classification_results(train_data, datatest1, train_classes, predictions, title, 'Représentants de classe',
                                    f'Données aléatoires classées {n_neighbors}-PPV',
                                    extent, datatest2, predictions2 / error_class / 0.75,
                                    f'Prédiction de {n_neighbors}-PPV, données originales')
-    return 100 * (1 - len(error_indexes) / len(classestest2))
+    if np.asarray(datatest2).any():
+        return 100 * (1 - len(error_indexes) / len(classestest2))
 
 def full_kmean(n_clusters, train_data, train_classes, title, extent,plot=True):
     """

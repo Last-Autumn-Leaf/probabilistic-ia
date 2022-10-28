@@ -179,3 +179,5 @@ def arrange_train_data(train_data):
         x, y, z = train_data.shape
         train_data = train_data.reshape(x*y, z)
     return train_data
+
+
