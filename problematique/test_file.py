@@ -9,7 +9,7 @@ from helpers.custom_class import dimension, VariablesTracker, getDefaultVar
 from helpers.custom_helper import *
 from helpers.analysis import viewEllipse
 
-
+import helpers
 
 def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred_bin,d_pred_count],n_bins=256):
     IC_obj.AjoutSubClasses()
@@ -132,6 +132,10 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
     fig.suptitle(f'Bar histogram {dim}', fontsize=20)
     ax = fig.subplots(N_CLASSES, 1)
     data = tracker.pick_var(dim, mode, dim_index)
+
+    # for i in range(len(IC.all_classes)):
+    #     np.savetxt(str(i)+"fractal.txt", data[IC.all_classes[i]])
+
     data = np.round(data / max(data) * n_bin)
     for i, axe in enumerate(ax):
         x = data[IC.all_classes[i]]
@@ -142,7 +146,12 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
 def main():
     np.random.seed(0)
     # AllGraphScatter(IC_obj=ImageCollection(),mode_list=[RGB,Lab,HSV],var_list=all_var_names)
-    bar_hist(mode=RGB,dim=d_fractal,dim_index=0,n_bin=20)
+    # for sigma in range(2, 30,2):
+    #     print(f'sigma = {sigma}')
+    #     helpers.custom_helper.sigma_canny = sigma
+    #     bar_hist(mode=RGB,dim=d_fractal,dim_index=0,n_bin=70)
+    # plt.show()
+    bar_hist(mode=Lab, dim=d_mean_bin, dim_index=2, n_bin=70)
 
 if __name__ == '__main__':
     main()

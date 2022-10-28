@@ -259,6 +259,16 @@ class ClassesTracker :
             index = dim[2]
             data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
         return data
+
+    def get_all_data(self):
+        idx = [i for i in range (len(self.class_labels))]
+        data=np.zeros( (len(idx),len(self.dims_list)) )
+        for i,dim in enumerate(self.dims_list) :
+            var = dim[0]
+            mode = dim[1]
+            index = dim[2]
+            data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
+        return data
     def get_training_data(self):
         return self.get_data()
 

@@ -1,7 +1,7 @@
 from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
-
+import skimage.color
 
 from skimage.color import rgb2gray
 from skimage.feature import canny, blob_doh
@@ -39,16 +39,25 @@ def d_pred_count_f (image):
 
 # Only works in RGB
 fractal_thr=100
-def fractal_dimension(Z, threshold=None): # Z = images
+sigma_canny = 8
+def fractal_dimension(Z, threshold=None, Canny = False, sigma = None): # Z = images
     if threshold ==None:
         threshold=fractal_thr
+
+    if sigma ==None:
+        sigma=sigma_canny
     def rgb2gray(rgb):
         r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
         gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
         return gray
 
     Z = Z.astype('float64')
-    Z = rgb2gray(Z)
+
+    if Canny:
+        Z = skimage.color.rgb2gray(Z)
+        Z = canny(Z,sigma = sigma)
+    else:
+        Z = rgb2gray(Z)
 
     # Only for 2d image
     assert(len(Z.shape) == 2)
@@ -63,7 +72,8 @@ def fractal_dimension(Z, threshold=None): # Z = images
         return len(np.where((S > 0) & (S < k*k))[0])
 
     # Transform Z into a binary array
-    Z = (Z < threshold)
+    if not Canny:
+        Z = (Z < threshold)
 
     # Minimal dimension of image
     p = min(Z.shape)
@@ -121,7 +131,7 @@ d_square_sum_f = lambda x: np.sum(np.square(x)) / 256 ** 3
 
 # Special RGB dims
 d_fractal = 'fractal dimension'
-d_fractal_f = lambda x: fractal_dimension(Z = x)
+d_fractal_f = lambda x: fractal_dimension(Z = x,Canny=False)
 d_n_blob = 'numbers of blobs'
 d_n_blob_f = lambda x : number_of_blob(x)
 
