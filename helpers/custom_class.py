@@ -153,13 +153,6 @@ class ClassesTracker :
         if N_CLASSES >3 :
             self.AjoutSubClasses()
 
-        temp = ttsplit( [i for i in range (len(self.class_labels))],
-                        self.class_labels, test_size=0.2, shuffle=True)
-        self.training_data_idx = temp[0]
-        self.training_target = temp[2]
-        self.validation_data_idx = temp[1]
-        self.validation_target = temp[3]
-
         #This should be coherent
         dimensions_list = [dimension(name = d_mean_bin,mode = Lab),dimension(name = d_pred_count,mode = Lab)
                            ,dimension(name = d_mean_bin,mode = HSV),dimension(name = d_pred_bin,mode = HSV),
@@ -246,25 +239,6 @@ class ClassesTracker :
 
         return self.tracker
 
-    def get_data(self,train=True):
-        if train :
-            idx=self.training_data_idx
-        else:
-            idx=self.validation_data_idx
-
-        data=np.zeros( (len(idx),len(self.dims_list)) )
-        for i,dim in enumerate(self.dims_list) :
-            var = dim[0]
-            mode = dim[1]
-            index = dim[2]
-            data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
-        return data
-    def get_training_data(self):
-        return self.get_data()
-
-    def get_test_data(self):
-        return self.get_data(False)
-
     def get_data_classwise(self,n=.8):
 
         classes=[ self.all_classes[i][:int(n*len(self.all_classes[i]))] for i in range(N_CLASSES)]
@@ -297,11 +271,6 @@ class ClassesTracker :
 
         return data,target,val_data,val_target
 
-    def get_target_data(self,train=True):
-        return self.class_labels[self.training_data_idx
-            if train else self.validation_data_idx]
-
-
     def __len__(self):
         return len(self.images)
 
@@ -325,3 +294,28 @@ class ClassesTracker :
         self.coast_sunset_id = list(self.coast_sunset_id)
         self.all_classes.append(self.coast_sunset_id)  ## ajout de la coast sunset dans
         ## all classes juste apres coast_id
+
+    '''def get_data(self,train=True):
+        if train :
+            idx=self.training_data_idx
+        else:
+            idx=self.validation_data_idx
+
+        data=np.zeros( (len(idx),len(self.dims_list)) )
+        for i,dim in enumerate(self.dims_list) :
+            var = dim[0]
+            mode = dim[1]
+            index = dim[2]
+            data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
+        return data
+    def get_training_data(self):
+        return self.get_data()
+
+    def get_test_data(self):
+        return self.get_data(False)
+
+    def get_target_data(self,train=True):
+        return self.class_labels[self.training_data_idx
+            if train else self.validation_data_idx]
+
+    '''

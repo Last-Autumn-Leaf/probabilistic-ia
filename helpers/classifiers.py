@@ -226,7 +226,7 @@ def nn_classify(n_hidden_layers, n_neurons, train_data, classes, test1, test2=No
     return predictions_test1, predictions_test2
 
 
-def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_data, test_classes):
+def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_data, test_classes,plot=True):
     """
     Classificateur de Bayes complet pour des classes équiprobables (apriori égal)
     Selon le calcul direct du risque avec un modèle gaussien
@@ -252,17 +252,17 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
     error_indexes = calc_erreur_classification(test_classes, classified2)
     classified2[error_indexes] = error_class
-    print(
-        f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classified2))}%')
+    #print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classified2))}%')
 
     train_data = arrange_train_data(train_data)
     #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
-    an.view_classification_results(train_data, donnee_test, train_classes, classified / error_class / .75,
+    if plot :
+        an.view_classification_results(train_data, donnee_test, train_classes, classified / error_class / .75,
                                    f'Classification de Bayes, {title}', 'Données originales', 'Données aléatoires',
                                    extent, test_data, classified2 / error_class / .75, 'Données d\'origine reclassées')
+    return 100 * (1 - len(error_indexes) / len(classified2))
 
-
-def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, datatest2=None, classestest2=None):
+def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, datatest2=None, classestest2=None,plot=True):
     """
     Classificateur PPV complet
     Utilise les données de train_data étiquetées dans train_classes pour créer un classificateur n_neighbors-PPV
@@ -280,16 +280,16 @@ def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, d
 
         error_indexes = calc_erreur_classification(classestest2, predictions2.reshape(classestest2.shape))
         predictions2[error_indexes] = error_class
-        print(
-            f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classestest2))}%')
+        #print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classestest2))}%')
     #an.view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
-    an.view_classification_results(train_data, datatest1, train_classes, predictions, title, 'Représentants de classe',
+    if plot :
+        an.view_classification_results(train_data, datatest1, train_classes, predictions, title, 'Représentants de classe',
                                    f'Données aléatoires classées {n_neighbors}-PPV',
                                    extent, datatest2, predictions2 / error_class / 0.75,
                                    f'Prédiction de {n_neighbors}-PPV, données originales')
+    return 100 * (1 - len(error_indexes) / len(classestest2))
 
-
-def full_kmean(n_clusters, train_data, train_classes, title, extent):
+def full_kmean(n_clusters, train_data, train_classes, title, extent,plot=True):
     """
     Exécute l'algorithme des n_clusters-moyennes sur les données de train_data étiquetées dans train_classes
     Produit un graphique des représentants de classes résultants
@@ -300,7 +300,8 @@ def full_kmean(n_clusters, train_data, train_classes, title, extent):
     train_data = arrange_train_data(train_data)
 
     #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
-    an.view_classification_results(train_data, cluster_centers, train_classes, cluster_labels, title, 'Données d\'origine',
+    if plot :
+        an.view_classification_results(train_data, cluster_centers, train_classes, cluster_labels, title, 'Données d\'origine',
                                    f'Clustering de {n_clusters}-Means', extent)
 
     return cluster_centers, cluster_labels
@@ -338,7 +339,7 @@ def calc_erreur_classification(original_data, classified_data):
     # génère le vecteur d'erreurs de classification
     vect_err = np.absolute(original_data - classified_data).astype(bool)
     indexes = np.array(np.where(vect_err == True))[0]
-    print(f'\n\n{len(indexes)} erreurs de classification sur {len(original_data)} données')
+    #print(f'\n\n{len(indexes)} erreurs de classification sur {len(original_data)} données')
     # print(indexes)
     return indexes
 
