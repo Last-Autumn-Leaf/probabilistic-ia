@@ -141,8 +141,8 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
     plt.show()
 def main():
     np.random.seed(0)
-    AllGraphScatter(IC_obj=ImageCollection(),mode_list=[RGB,Lab,HSV],var_list=all_var_names)
-
+    # AllGraphScatter(IC_obj=ImageCollection(),mode_list=[RGB,Lab,HSV],var_list=all_var_names)
+    bar_hist(mode=RGB,dim=d_fractal,dim_index=0,n_bin=20)
 
 if __name__ == '__main__':
     main()

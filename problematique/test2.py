@@ -31,6 +31,11 @@ def KNN(n_kmean=5,n_knn=1):
 
 
 
+def RNN():
+    CT = ClassesTracker()
+    train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=0.8)
+    classifiers.full_nn(train_data, train_classes, CT.donneesTest, ' RNN',
+                                CT.extent, test_data, test_classes)
 
 if __name__=='__main__':
     np.random.seed(0)

@@ -87,7 +87,8 @@ def fractal_dimension(Z, threshold=None): # Z = images
         return 0
 
     coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
-    return -coeffs[0]*3
+    return [-coeffs[0]]*3
+
 
 #Only works inRGB
 def number_of_blob(image,max_sigma=30,th=0.1) :
