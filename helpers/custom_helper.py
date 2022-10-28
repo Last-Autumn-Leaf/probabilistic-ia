@@ -1,6 +1,5 @@
 from collections import defaultdict
 import numpy as np
-import matplotlib.pyplot as plt
 import skimage.color
 
 from skimage.color import rgb2gray
