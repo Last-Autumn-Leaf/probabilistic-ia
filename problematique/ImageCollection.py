@@ -291,47 +291,6 @@ class ImageCollection:
 
         return tracker
 
-    # TODO refaire get DatasetTable
-    '''def getDatasetTable(self,tracker,current_mode='RGB',n_bins=256):
-
-        fig, ax = plt.subplots(figsize=(10,5 ))
-        # hide axes
-        fig.patch.set_visible(False)
-
-        watch=None
-        data=None
-        #----- start for loop here
-        for c_dataset in self.all_classes :
-            result=self.getStat(self.enc_classes[c_dataset],current_mode,n_bins)
-            data[c_dataset]=[result[i][watch] for i in range(3)]+['']
-
-        ax.axis('off')
-        ax.axis('tight')
-        df = pd.DataFrame(data, index=self.enc_repr[current_mode] +['Color'])
-        table=ax.table(cellText=df.values, rowLabels=df.index,colLabels=df.columns, loc='center',
-                 cellLoc='center')
-        table.scale(2, 2)
-        for i,c_class in enumerate(self.all_classes):
-            current_color =[x/(n_bins-1) for x in data[c_class][:3]] #normalize between[0,1]
-
-            if current_mode =='HSV':
-                #current_color=matplotlib.colors.hsv_to_rgb(current_color)
-                current_color=skic.hsv2rgb(current_color)
-            elif current_mode=='Lab':
-                current_color[0]*=100
-                for j in range(1,3):
-                    current_color[j]=(current_color[j]-0.5)*220
-                current_color=skic.lab2rgb(current_color)
-            if watch in self.watch_var[:2]:
-                table[(4, i)].set_facecolor(current_color)
-        ax.set_title(f"{watch}")
-
-        #-----------
-
-        fig.tight_layout()
-        fig.suptitle(f"Dataset table infor for {n_bins} bins")
-        #plt.show()
-'''
 
     def scatterGraph2D(self,dim1,dim2,tracker,n_bins=256):
         var1=dim1[0]

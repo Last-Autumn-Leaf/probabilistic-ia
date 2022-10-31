@@ -1,15 +1,13 @@
-
-
+import numpy as np
 import numpy.random
 import math
 import itertools
 
 from ImageCollection import ImageCollection
-from helpers.custom_class import dimension, VariablesTracker, getDefaultVar
+from helpers.custom_class import dimension, VariablesTracker, getDefaultVar, ClassesTracker
 from helpers.custom_helper import *
 from helpers.analysis import viewEllipse
-
-import helpers
+import matplotlib.pyplot as plt
 
 def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred_bin,d_pred_count],n_bins=256):
     IC_obj.AjoutSubClasses()
@@ -130,19 +128,58 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
 
     fig = plt.figure()
     fig.suptitle(f'Bar histogram {dim}', fontsize=20)
-    ax = fig.subplots(N_CLASSES, 1)
+    #ax = fig.subplots(N_CLASSES, 1)
+    axe = fig.subplots(1, 1)
     data = tracker.pick_var(dim, mode, dim_index)
 
     # for i in range(len(IC.all_classes)):
     #     np.savetxt(str(i)+"fractal.txt", data[IC.all_classes[i]])
 
     data = np.round(data / max(data) * n_bin)
-    for i, axe in enumerate(ax):
+    for i in range(N_CLASSES):
         x = data[IC.all_classes[i]]
         y = np.bincount(x.astype('int32'), minlength=n_bin + 1)
-        axe.bar(x=[i for i in range(n_bin + 1)], height=y, align='edge', color=CLASS_COLOR_ARRAY[i])
+        axe.bar(x=[i for i in range(n_bin + 1)], height=y, align='edge', color=CLASS_COLOR_ARRAY[i],alpha=0.5)
 
     plt.show()
+
+def brute_force_bar(modes=all_modes,vars=all_var_names,n_bins=100) :
+
+    prod = list(itertools.product(modes, vars))
+    dimensions_list = [dimension(name=dim, mode=mode) for mode,dim in prod]
+    picked_vars=[]
+    for m,v in prod :
+        if m==d_fractal and v ==RGB:
+            picked_vars.append ( (m,v,0) )
+        elif m==d_fractal :
+            pass
+        else :
+            picked_vars.append((m, v, 0))
+            picked_vars.append((m, v, 1))
+            picked_vars.append((m, v, 2))
+
+
+    print('We will print',len(picked_vars),'graphs')
+    CT = ClassesTracker(dimensions_list,picked_vars)
+    tracker=CT.tracker
+    n_plots= np.ceil(np.sqrt(len(picked_vars)))
+    ax,fig = plt.subplots(n_plots, n_plots)
+
+
+    for i,(dim,mode,dim_index) in enumerate(picked_vars) :
+        data=tracker.pick_var(dim,mode,dim_index)
+        data = np.round(data / max(data) * n_bins)
+        for i in range(N_CLASSES):
+            x = data[CT.all_classes[i]]
+            y = np.bincount(x.astype('int32'), minlength=n_bins + 1)
+            ax[i // n_plots, i % n_plots].bar(x=[j for j in range(n_bins + 1)],
+                        height=y, align='edge', color=CLASS_COLOR_ARRAY[i],alpha=0.5)
+
+    plt.show()
+
+
+
+
 def main():
     np.random.seed(0)
     # AllGraphScatter(IC_obj=ImageCollection(),mode_list=[RGB,Lab,HSV],var_list=all_var_names)
@@ -154,4 +191,5 @@ def main():
     bar_hist(mode=Lab, dim=d_mean_bin, dim_index=2, n_bin=70)
 
 if __name__ == '__main__':
-    main()
+    brute_force_bar()
+    #main()

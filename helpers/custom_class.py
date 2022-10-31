@@ -117,7 +117,7 @@ from skimage import color as skic
 from helpers.analysis import Extent,genDonneesTest
 PREVENT_OS_SORT = True
 class ClassesTracker :
-    def __init__(self):
+    def __init__(self,dimension_list=None,dims_list_idx=None):
         # liste de toutes les images
         image_folder = r"." + os.sep + "baseDeDonneesImages"
         _path = glob.glob(image_folder + os.sep + r"*.jpg")
@@ -152,25 +152,29 @@ class ClassesTracker :
 
 
         #This should be coherent
-        dimensions_list = [dimension(name = d_mean_bin,mode = Lab),dimension(name = d_pred_count,mode = Lab)
-                           ,dimension(name = d_mean_bin,mode = HSV),dimension(name = d_pred_bin,mode = HSV),
-                           dimension(name = d_fractal,mode = RGB)]
-        self.dims_list=[(d_mean_bin,Lab,1),(d_mean_bin,Lab,2),(d_pred_count,Lab,1)
-                        ,(d_mean_bin,HSV,1),(d_pred_bin,HSV,2),(d_pred_bin,HSV,0),(d_fractal,RGB,0)]
+        if dimension_list ==None :
+            dimension_list = [dimension(name = d_mean_bin, mode = Lab), dimension(name = d_pred_count, mode = Lab)
+                               , dimension(name = d_mean_bin,mode = HSV), dimension(name = d_pred_bin,mode = HSV),
+                              dimension(name = d_fractal,mode = RGB)]
+        if dims_list_idx == None :
+            self.dims_list_idx=[(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2), (d_pred_count, Lab, 1)
+                            , (d_mean_bin,HSV,1), (d_pred_bin,HSV,2), (d_pred_bin,HSV,0), (d_fractal,RGB,0)]
+        else :
+            self.dims_list_idx=dims_list_idx
 
-        self.tracker = VariablesTracker(dimensions_list)
+        self.tracker = VariablesTracker(dimension_list)
         self.tracker.update_dataset_size(len(self.images))
 
         self.n_bins=256
         with timeThat('Pre processing of all the data'):
             self.pre_process_all_data(self.images)
 
-        plist =[self.tracker.pick_var(dim[0],dim[1],dim[2]) for dim in self.dims_list]
+        plist =[self.tracker.pick_var(dim[0],dim[1],dim[2]) for dim in self.dims_list_idx]
         self.extent=Extent(ptList=np.stack(plist,axis=1))
 
         # génération de données aléatoires
         ndonnees = 5000
-        self.donneesTest = genDonneesTest(ndonnees, self.extent,n=len(self.dims_list))
+        self.donneesTest = genDonneesTest(ndonnees, self.extent, n=len(self.dims_list_idx))
 
 
     def pre_process_all_data(self,images,n_bins=256):
@@ -181,7 +185,7 @@ class ClassesTracker :
             """
 
             # Constantes de la représentation Lab
-            class LabCte:  # TODO JB : utiliser an.Extent?
+            class LabCte:
                 min_L: int = 0
                 max_L: int = 100
                 min_ab: int = -110
@@ -239,8 +243,8 @@ class ClassesTracker :
 
     def get_all_data(self):
         idx = [i for i in range (len(self.class_labels))]
-        data=np.zeros( (len(idx),len(self.dims_list)) )
-        for i,dim in enumerate(self.dims_list) :
+        data=np.zeros((len(idx),len(self.dims_list_idx)))
+        for i,dim in enumerate(self.dims_list_idx) :
             var = dim[0]
             mode = dim[1]
             index = dim[2]
@@ -263,11 +267,11 @@ class ClassesTracker :
             val_idx+=val
             val_target+= [i]*len(val)
         val_target=np.array(val_target)[:,None]
-        val_data=np.zeros((len(val_idx),len(self.dims_list)))
-        data = [ np.zeros((len(classes[i]),len(self.dims_list))) for i in range(N_CLASSES)]
-        #data = np.zeros((N_CLASSES, n,len(self.dims_list)))
+        val_data=np.zeros((len(val_idx),len(self.dims_list_idx)))
+        data = [np.zeros((len(classes[i]),len(self.dims_list_idx))) for i in range(N_CLASSES)]
+        #data = np.zeros((N_CLASSES, n,len(self.dims_list_idx)))
 
-        for i, dim in enumerate(self.dims_list):
+        for i, dim in enumerate(self.dims_list_idx):
             var = dim[0]
             mode = dim[1]
             index = dim[2]
