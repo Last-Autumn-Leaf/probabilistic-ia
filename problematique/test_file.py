@@ -163,19 +163,22 @@ def brute_force_bar(modes=all_modes,vars=all_var_names,n_bins=100) :
     CT = ClassesTracker(dimensions_list,picked_vars)
     tracker=CT.tracker
     n_plots= int(np.ceil(np.sqrt(len(picked_vars))))
-    fig,ax = plt.subplots(n_plots, n_plots)
+    fig,ax = plt.subplots(n_plots, n_plots,figsize=(50,40))
 
 
-    for i,(dim,mode,dim_index) in enumerate(picked_vars) :
-        data=tracker.pick_var(dim,mode,dim_index)
+    for i,(dim, mode, mode_index) in enumerate(picked_vars) :
+        data=tracker.pick_var(dim, mode, mode_index)
         data = np.round(data / max(data) * n_bins)
         for j in range(N_CLASSES):
             x = data[CT.all_classes[j]]
             y = np.bincount(x.astype('int32'), minlength=n_bins + 1)
             ax[i // n_plots, i % n_plots].bar(x=[k for k in range(n_bins + 1)],
                         height=y, align='edge', color=CLASS_COLOR_ARRAY[j],alpha=0.5)
-
-    plt.show()
+        ax[i // n_plots, i % n_plots].title.set_text(f'{dim}:{class2detailed_repr[mode][mode_index]}')
+    plt.subplots_adjust()
+    fig.tight_layout()
+    fig.savefig('bruteforce2.pdf')
+    #plt.show()
 
 
 

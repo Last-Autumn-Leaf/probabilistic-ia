@@ -139,7 +139,7 @@ v_pred_bin = 'most predominant triplet bin'
 v_pred_bin_f=lambda x: getHighestFrequencyVector(x)
 
 #d_square_sum,v_pred_bin
-all_var_names=[d_mean_bin,d_pred_bin, d_pred_count,d_fractal,d_square_sum]
+all_var_names=[d_mean_bin,d_pred_bin, d_pred_count,d_fractal,d_square_sum,d_pred_count]
 
 var_name2f= {
     d_mean_bin:d_mean_bin_f,
