@@ -150,30 +150,30 @@ def brute_force_bar(modes=all_modes,vars=all_var_names,n_bins=100) :
     picked_vars=[]
     for m,v in prod :
         if m==d_fractal and v ==RGB:
-            picked_vars.append ( (m,v,0) )
+            picked_vars.append ( (v,m,0) )
         elif m==d_fractal :
             pass
         else :
-            picked_vars.append((m, v, 0))
-            picked_vars.append((m, v, 1))
-            picked_vars.append((m, v, 2))
+            picked_vars.append((v,m, 0))
+            picked_vars.append((v,m, 1))
+            picked_vars.append((v,m, 2))
 
 
     print('We will print',len(picked_vars),'graphs')
     CT = ClassesTracker(dimensions_list,picked_vars)
     tracker=CT.tracker
-    n_plots= np.ceil(np.sqrt(len(picked_vars)))
-    ax,fig = plt.subplots(n_plots, n_plots)
+    n_plots= int(np.ceil(np.sqrt(len(picked_vars))))
+    fig,ax = plt.subplots(n_plots, n_plots)
 
 
     for i,(dim,mode,dim_index) in enumerate(picked_vars) :
         data=tracker.pick_var(dim,mode,dim_index)
         data = np.round(data / max(data) * n_bins)
-        for i in range(N_CLASSES):
-            x = data[CT.all_classes[i]]
+        for j in range(N_CLASSES):
+            x = data[CT.all_classes[j]]
             y = np.bincount(x.astype('int32'), minlength=n_bins + 1)
-            ax[i // n_plots, i % n_plots].bar(x=[j for j in range(n_bins + 1)],
-                        height=y, align='edge', color=CLASS_COLOR_ARRAY[i],alpha=0.5)
+            ax[i // n_plots, i % n_plots].bar(x=[k for k in range(n_bins + 1)],
+                        height=y, align='edge', color=CLASS_COLOR_ARRAY[j],alpha=0.5)
 
     plt.show()
 
