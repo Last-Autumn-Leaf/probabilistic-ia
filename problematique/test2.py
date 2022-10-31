@@ -12,7 +12,7 @@ def Bayes(n=0.84):
     return classifiers.full_Bayes_risk(train_data, train_classes, CT.donneesTest, 'Bayes risque #1',
                                 CT.extent, test_data, test_classes)
 
-def KNN(n_kmean=24,n_knn=21):
+def KNN(n_kmean=11,n_knn=5):
     np.random.seed(0)
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=0.84)
     cluster_centers, cluster_labels = classifiers.full_kmean(n_kmean, train_data,
@@ -25,8 +25,9 @@ def RNN():
     Quatres_data = CT.get_all_data()
     Quatres_labels = CT.class_labels
 
+    Quatres_data = np.square(Quatres_data)
     ### Hyperparametres ###
-    n_hidden_layers = 2
+    n_hidden_layers = 7
     n_neurons = 5
     ### --- ###
 
@@ -69,8 +70,8 @@ if __name__=='__main__':
     KNN()
     Bayes()
     RNN()
-    plt.show()
-
+    # plt.show()
+    # param_search_KNN()
 
 
 

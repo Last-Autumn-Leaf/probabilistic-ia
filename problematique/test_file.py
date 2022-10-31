@@ -149,9 +149,9 @@ def brute_force_bar(modes=all_modes,vars=all_var_names,n_bins=100) :
     dimensions_list = [dimension(name=dim, mode=mode) for mode,dim in prod]
     picked_vars=[]
     for m,v in prod :
-        if m==d_fractal and v ==RGB:
+        if m==RGB and v==d_fractal:
             picked_vars.append ( (v,m,0) )
-        elif m==d_fractal :
+        elif v==d_fractal :
             pass
         else :
             picked_vars.append((v,m, 0))
