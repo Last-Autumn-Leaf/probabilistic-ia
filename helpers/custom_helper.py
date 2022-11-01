@@ -3,8 +3,7 @@ import numpy as np
 import skimage.color
 
 from skimage.color import rgb2gray
-from skimage.feature import canny, blob_doh
-
+from skimage.feature import canny, blob_doh, blob_dog
 
 N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
@@ -102,9 +101,13 @@ def fractal_dimension(Z, threshold=None, Canny = False, sigma = None): # Z = ima
 #Only works inRGB
 def number_of_blob(image,max_sigma=30,th=0.1) :
 
+    image=image.astype('uint8')
     image_gray = rgb2gray(image)
-    blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
-    return [len(blobs_doh)]*3
+    #blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
+    #return [len(blobs_doh)]*3
+    blobs_dog = blob_dog(image_gray, max_sigma=max_sigma, threshold=th)
+    blobs_dog[:, 2] = blobs_dog[:, 2] * np.sqrt(2)
+    return [len(blobs_dog),np.max(blobs_dog[:, 2]),np.mean(blobs_dog[:, 2])]
 
 # ------ MODE NAMES :
 RGB = 'RGB'

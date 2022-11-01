@@ -1,3 +1,5 @@
+import glob
+import os
 from math import sqrt
 from skimage import data
 from skimage.feature import blob_dog, blob_log, blob_doh
@@ -6,6 +8,9 @@ from skimage import io as skiio
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+from helpers.custom_helper import timeThat
+
 
 def main(path,max_sigma=30,th=0.1):
     #image = data.hubble_deep_field()[0:500, 0:500]
@@ -43,32 +48,24 @@ def main(path,max_sigma=30,th=0.1):
     plt.tight_layout()
 
 
-
 def number_of_blob(image,max_sigma=30,th=0.1) :
     image_gray = rgb2gray(image)
     blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
     return len(blobs_doh)
 
-def blob_doh_array(image,max_sigma=30,th=0.1):
-    image_gray = rgb2gray(image)
-    blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
-    return blobs_doh
 
-def main_save(path,max_sigma=30,th=0.1):
-    image = skiio.imread(path)
-    blobs_array = blob_doh_array(image,max_sigma=30,th=0.1)
-    return blobs_array
+
+def time_numblob_fun():
+    image_folder = r"." + os.sep + "baseDeDonneesImages"
+    _path = glob.glob(image_folder + os.sep + r"*.jpg")
+    with timeThat():
+        for path in _path:
+            image = skiio.imread(path)
+            number_of_blob(image)
 
 if __name__ == '__main__':
-    paths= ["./baseDeDonneesImages/coast_arnat59.jpg",
-            "./baseDeDonneesImages/forest_cdmc306.jpg",
-            "./baseDeDonneesImages/street_art764.jpg"]
+    image_folder = r"." + os.sep + "baseDeDonneesImages"
+    _path = glob.glob(image_folder + os.sep + r"*.jpg")
 
-    blobs_list = []
-    for path in paths :
-        blobs_i = main_save(path)
-        blobs_list.append(blobs_i)
-
-        # main(path,20,0.1)
-    np.save('blob.npy',blobs_list)
+    main(_path[0])
     plt.show()

@@ -132,16 +132,12 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
     axe = fig.subplots(1, 1)
     data = tracker.pick_var(dim, mode, dim_index)
 
-    # for i in range(len(IC.all_classes)):
-    #     np.savetxt(str(i)+"fractal.txt", data[IC.all_classes[i]])
-
     data = np.round(data / max(data) * n_bin)
     for i in range(N_CLASSES):
         x = data[IC.all_classes[i]]
         y = np.bincount(x.astype('int32'), minlength=n_bin + 1)
         axe.bar(x=[i for i in range(n_bin + 1)], height=y, align='edge', color=CLASS_COLOR_ARRAY[i],alpha=0.5)
 
-    plt.show()
 
 def brute_force_bar(modes=all_modes,vars=all_var_names,n_bins=100) :
 
@@ -209,7 +205,7 @@ def graphs3d():
             zz = z[CT.all_classes[j]]
 
 
-            ax.scatter(xx,yy,zz, color=CLASS_COLOR_ARRAY[j], alpha=0.5)
+            ax.scatter(xx,yy,zz, color=CLASS_COLOR_ARRAY[j], alpha=0.35)
         ax.set_xlabel(f'{var_x[0]}:{class2detailed_repr[var_x[1]][var_x[2]]}')
         ax.set_ylabel(f'{var_y[0]}:{class2detailed_repr[var_y[1]][var_y[2]]}')
         ax.set_zlabel(f'{var_z[0]}:{class2detailed_repr[var_z[1]][var_z[2]]}')
@@ -221,14 +217,11 @@ def graphs3d():
 
 def main():
     np.random.seed(0)
-    # AllGraphScatter(IC_obj=ImageCollection(),mode_list=[RGB,Lab,HSV],var_list=all_var_names)
-    # for sigma in range(2, 30,2):
-    #     print(f'sigma = {sigma}')
-    #     helpers.custom_helper.sigma_canny = sigma
-    #     bar_hist(mode=RGB,dim=d_fractal,dim_index=0,n_bin=70)
-    # plt.show()
-    bar_hist(mode=RGB, dim=d_n_blob, dim_index=0, n_bin=70)
+    for i in range(3):
+        np.random.seed(0)
+        bar_hist(mode=RGB, dim=d_n_blob, dim_index=i, n_bin=70)
+    plt.show()
 
 if __name__ == '__main__':
     # brute_force_bar()
-    graphs3d()
+    main()
