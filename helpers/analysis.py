@@ -115,7 +115,7 @@ def viewEllipse(data, ax, scale=1, facecolor='none', edgecolor='red', **kwargs):
 
     ellipse = Ellipse(moy, width=2*scale*lambdas[1], height=2*scale*lambdas[0],
                       angle= angle, facecolor=facecolor,
-                      edgecolor=edgecolor, linewidth=2, **kwargs)
+                      edgecolor=edgecolor, linewidth=3, **kwargs)
     return ax.add_patch(ellipse)
 
 

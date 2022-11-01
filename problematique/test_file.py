@@ -138,6 +138,34 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
         y = np.bincount(x.astype('int32'), minlength=n_bin + 1)
         axe.bar(x=[i for i in range(n_bin + 1)], height=y, align='edge', color=CLASS_COLOR_ARRAY[i],alpha=0.5)
 
+def Hist1D(n_bins = 70):
+    dimensions_list = [dimension(name=d_mean_bin, mode=Lab), dimension(name=d_mean_bin, mode=HSV),
+                       dimension(name=d_fractal, mode=RGB)]
+    picked_vars = [(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2), (d_mean_bin, HSV, 1),
+                   (d_fractal, RGB, 0)]
+
+    CT = ClassesTracker(dimensions_list, picked_vars)
+
+    print('We will print', len(picked_vars), 'graphs')
+    tracker = CT.tracker
+    n_plots_lines = int(np.floor(np.sqrt(len(picked_vars))))
+    n_plots_columns = n_plots_lines + 1
+    fig, ax = plt.subplots(n_plots_lines, n_plots_columns)
+
+    for i, (dim, mode, mode_index) in enumerate(picked_vars):
+        data = tracker.pick_var(dim, mode, mode_index)
+        data = np.round(data / max(data) * n_bins)
+        for j in range(N_CLASSES):
+            x = data[CT.all_classes[j]]
+            y = np.bincount(x.astype('int32'), minlength=n_bins + 1)
+            ax[i // n_plots_columns, i % n_plots_columns].bar(x=[k for k in range(n_bins + 1)],
+                                              height=y, align='edge', color=CLASS_COLOR_ARRAY[j], alpha=0.5)
+
+
+        ax[i // n_plots_columns, i % n_plots_columns].title.set_text(f'{dim}:{class2detailed_repr[mode][mode_index]}')
+    plt.subplots_adjust()
+    fig.tight_layout()
+    plt.show()
 
 def brute_force_bar(modes=all_modes,vars=all_var_names,n_bins=100) :
 
@@ -240,6 +268,12 @@ def graphs2d():
             yy = y[CT.all_classes[j]]
 
             ax[a,b].scatter(xx,yy, color=CLASS_COLOR_ARRAY[j], alpha=0.35)
+
+            ax[a, b].scatter(xx, yy, alpha=0.2, color=CLASS_COLOR_ARRAY[j],
+                             marker='.')
+            data_ellipse = np.array((xx, yy)).T
+            viewEllipse(data=data_ellipse, ax=ax[a, b],
+                        facecolor=CLASS_COLOR_ARRAY[j], scale=1, alpha=0.5,edgecolor='purple')
 
         ax[a,b].set_xlabel(f'{var_x[0]}:{class2detailed_repr[var_x[1]][var_x[2]]}')
         ax[a,b].set_ylabel(f'{var_y[0]}:{class2detailed_repr[var_y[1]][var_y[2]]}')

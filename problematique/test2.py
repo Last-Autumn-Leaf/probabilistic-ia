@@ -8,6 +8,7 @@ import matplotlib.pyplot  as plt
 from helpers.custom_class import ClassesTracker
 
 
+
 def Bayes(n=0.83):
     np.random.seed(0)
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=n)
@@ -67,6 +68,6 @@ CT = ClassesTracker()
 
 if __name__=='__main__':
 
-    Bayes()
+    a = Bayes()
     KNN()
     RNN()

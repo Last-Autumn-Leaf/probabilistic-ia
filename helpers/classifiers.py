@@ -53,9 +53,17 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 
 import helpers.analysis as an
-from helpers.custom_helper import arrange_train_data
+from helpers.custom_helper import arrange_train_data, N_CLASSES
 
 
+def confusion_matrix(target, pred, n_classes = N_CLASSES):
+    # Calcul de la matrice de confusion
+    confus_mat = np.zeros((n_classes, n_classes))  # Intialisation de la matrice au nombre de symboles disponbles
+
+    for i in range(len(target)):
+        confus_mat[target[i], pred[i]] += 1
+
+    return confus_mat
 def compute_prob_dens_gaussian(train_data, test_data1, test_data2):
     """
     Construit les modèles gaussien de chaque classe (première dimension de train_data)
@@ -248,10 +256,18 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
     classified = np.argmax(prob_dens, axis=1).reshape(len(donnee_test), 1)
     classified2 = np.argmax(prob_dens2, axis=1).reshape(test_classes.shape)
 
+    ### a commenter pour que le labo fonctionne
+    confus_mat = confusion_matrix(target = test_classes, pred = classified2, n_classes=N_CLASSES)
+    print(f'confusion matrix = {confus_mat}')
+    ### --- ###
+
     # calcule le taux de classification moyen
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
     error_indexes = calc_erreur_classification(test_classes, classified2)
     classified2[error_indexes] = error_class
+
+
+
     print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classified2))}%')
 
     train_data = arrange_train_data(train_data)
@@ -271,6 +287,14 @@ def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, d
     Produit un graphique des résultats pour test1 et test2 le cas échéant
     """
     predictions, predictions2 = ppv_classify(n_neighbors, train_data, train_classes.ravel(), datatest1, datatest2)
+
+    ### a commenter pour que le labo fonctionne ###
+    pred2 = np.expand_dims(predictions2, axis=1)
+    pred2 = pred2.astype('uint8')
+    confus_mat = confusion_matrix(target=classestest2, pred=pred2, n_classes=N_CLASSES)
+    print(f'confusion matrix = {confus_mat}')
+    ### --- ###
+
     predictions = predictions.reshape(len(datatest1), 1)
 
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
@@ -317,6 +341,14 @@ def full_nn(n_hiddenlayers, n_neurons, train_data, train_classes, test1, title, 
     Produit un graphique des résultats pour test1 et test2 le cas échéant
     """
     predictions, predictions2 = nn_classify(n_hiddenlayers, n_neurons, train_data, train_classes.ravel(), test1, test2)
+
+    ### a commenter pour que le labo fonctionne ###
+    pred2 = np.expand_dims(predictions2, axis=1)
+    pred2 = pred2.astype('uint8')
+    confus_mat = confusion_matrix(target=classestest2, pred=pred2, n_classes=N_CLASSES)
+    print(f'confusion matrix = {confus_mat}')
+    ### --- ###
+
     predictions = predictions.reshape(len(test1), 1)
 
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
