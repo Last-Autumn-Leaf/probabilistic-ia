@@ -226,6 +226,15 @@ def loadStoreBlobData(path=stored_blob_path):
         storeBlobData()
     return np.load(path)
 
+def confusion_matrix(target, pred, n_classes = N_CLASSES):
+    # Calcul de la matrice de confusion
+    confus_mat = np.zeros((n_classes, n_classes))  # Intialisation de la matrice au nombre de symboles disponbles
+
+    for i in range(len(target)):
+        confus_mat[target[i], pred[i]] += 1
+
+    return confus_mat
+
 N_KMEAN=14
 N_KNN=5
 KNN_MODEL_PATH=(f'../model/KNN_MODEL_{N_KMEAN}.npy',

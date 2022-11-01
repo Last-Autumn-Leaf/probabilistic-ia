@@ -56,14 +56,6 @@ import helpers.analysis as an
 from helpers.custom_helper import arrange_train_data, N_CLASSES
 
 
-def confusion_matrix(target, pred, n_classes = N_CLASSES):
-    # Calcul de la matrice de confusion
-    confus_mat = np.zeros((n_classes, n_classes))  # Intialisation de la matrice au nombre de symboles disponbles
-
-    for i in range(len(target)):
-        confus_mat[target[i], pred[i]] += 1
-
-    return confus_mat
 def compute_prob_dens_gaussian(train_data, test_data1, test_data2):
     """
     Construit les modèles gaussien de chaque classe (première dimension de train_data)
@@ -259,11 +251,6 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
     classified = np.argmax(prob_dens, axis=1).reshape(len(donnee_test), 1)
     classified2 = np.argmax(prob_dens2, axis=1).reshape(test_classes.shape)
 
-    ### a commenter pour que le labo fonctionne
-    confus_mat = confusion_matrix(target = test_classes, pred = classified2, n_classes=N_CLASSES)
-    print(f'confusion matrix = {confus_mat}')
-    ### --- ###
-
     # calcule le taux de classification moyen
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
     error_indexes = calc_erreur_classification(test_classes, classified2)
@@ -279,7 +266,7 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
         an.view_classification_results(train_data, donnee_test, train_classes, classified / error_class / .75,
                                    f'Classification de Bayes, {title}', 'Données originales', 'Données aléatoires',
                                    extent, test_data, classified2 / error_class / .75, 'Données d\'origine reclassées')
-    return 100 * (1 - len(error_indexes) / len(classified2))
+    return 100 * (1 - len(error_indexes) / len(classified2)) ,classified2,test_classes
 
 def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, datatest2=None, classestest2=None,plot=True):
     """

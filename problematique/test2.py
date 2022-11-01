@@ -10,11 +10,14 @@ import matplotlib.pyplot  as plt
 from helpers.custom_class import ClassesTracker
 
 
+def
+
 def Bayes(n=0.83):
     np.random.seed(0)
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=n)
-    return classifiers.full_Bayes_risk(train_data, train_classes, CT.donneesTest, 'Bayes risque #1',
+    score,pred,target= classifiers.full_Bayes_risk(train_data, train_classes, CT.donneesTest, 'Bayes risque #1',
                                 CT.extent, test_data, test_classes)
+    return score,pred,target
 
 def KNN(n_kmean=N_KMEAN,n_knn=N_KNN,cluster_centers=None,cluster_labels=None,plot=True):
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=0.84)
@@ -66,7 +69,7 @@ np.random.seed(0)
 CT = ClassesTracker()
 
 if __name__=='__main__':
-    # Bayes()
+    Bayes()
     # KNN()
     RNN()
     plt.show()
