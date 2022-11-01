@@ -5,6 +5,7 @@ from skimage.color import rgb2gray
 from skimage import io as skiio
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 def main(path,max_sigma=30,th=0.1):
     #image = data.hubble_deep_field()[0:500, 0:500]
@@ -48,10 +49,26 @@ def number_of_blob(image,max_sigma=30,th=0.1) :
     blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
     return len(blobs_doh)
 
+def blob_doh_array(image,max_sigma=30,th=0.1):
+    image_gray = rgb2gray(image)
+    blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
+    return blobs_doh
+
+def main_save(path,max_sigma=30,th=0.1):
+    image = skiio.imread(path)
+    blobs_array = blob_doh_array(image,max_sigma=30,th=0.1)
+    return blobs_array
+
 if __name__ == '__main__':
     paths= ["./baseDeDonneesImages/coast_arnat59.jpg",
             "./baseDeDonneesImages/forest_cdmc306.jpg",
             "./baseDeDonneesImages/street_art764.jpg"]
+
+    blobs_list = []
     for path in paths :
-        main(path,20,0.1)
+        blobs_i = main_save(path)
+        blobs_list.append(blobs_i)
+
+        # main(path,20,0.1)
+    np.save('blob.npy',blobs_list)
     plt.show()

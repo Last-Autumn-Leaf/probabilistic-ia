@@ -191,8 +191,9 @@ def main():
     #     helpers.custom_helper.sigma_canny = sigma
     #     bar_hist(mode=RGB,dim=d_fractal,dim_index=0,n_bin=70)
     # plt.show()
-    bar_hist(mode=Lab, dim=d_mean_bin, dim_index=2, n_bin=70)
+    bar_hist(mode=RGB, dim=d_n_blob, dim_index=0, n_bin=70)
 
 if __name__ == '__main__':
-    brute_force_bar()
-    #main()
+    # brute_force_bar()
+    main()
+    print("coucou")
