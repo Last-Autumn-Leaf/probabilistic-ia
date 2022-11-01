@@ -180,7 +180,43 @@ def brute_force_bar(modes=all_modes,vars=all_var_names,n_bins=100) :
     fig.savefig('bruteforce2.pdf')
     #plt.show()
 
+def graphs3d():
+    dimensions_list = [dimension(name=d_mean_bin, mode=Lab), dimension(name=d_mean_bin, mode=HSV),
+                      dimension(name=d_pred_bin, mode=HSV), dimension(name=d_fractal, mode=RGB)]
+    picked_vars = [(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2), (d_mean_bin, HSV, 1),
+                     (d_pred_bin, HSV, 0), (d_fractal, RGB, 0)]
 
+
+
+    CT = ClassesTracker(dimensions_list, picked_vars)
+
+    picked_vars=list(itertools.combinations(picked_vars,3))
+    print('We will print', len(picked_vars), 'graphs')
+    tracker = CT.tracker
+    n_plots = int(np.ceil(np.sqrt(len(picked_vars))))
+    fig=plt.figure()
+
+
+    for i, (var_x, var_y, var_z) in enumerate(picked_vars):
+
+        x = tracker.pick_var(var_x[0], var_x[1], var_x[2])
+        y = tracker.pick_var(var_y[0], var_y[1], var_y[2])
+        z = tracker.pick_var(var_z[0], var_z[1], var_z[2])
+        ax = fig.add_subplot(n_plots, n_plots, i+1, projection='3d')
+        for j in range(N_CLASSES):
+            xx = x[CT.all_classes[j]]
+            yy = y[CT.all_classes[j]]
+            zz = z[CT.all_classes[j]]
+
+
+            ax.scatter(xx,yy,zz, color=CLASS_COLOR_ARRAY[j], alpha=0.5)
+        ax.set_xlabel(f'{var_x[0]}:{class2detailed_repr[var_x[1]][var_x[2]]}')
+        ax.set_ylabel(f'{var_y[0]}:{class2detailed_repr[var_y[1]][var_y[2]]}')
+        ax.set_zlabel(f'{var_z[0]}:{class2detailed_repr[var_z[1]][var_z[2]]}')
+    plt.subplots_adjust()
+    fig.tight_layout()
+
+    plt.show()
 
 
 def main():
@@ -195,5 +231,4 @@ def main():
 
 if __name__ == '__main__':
     # brute_force_bar()
-    main()
-    print("coucou")
+    graphs3d()
