@@ -14,7 +14,7 @@ def Bayes(n=0.83):
     return classifiers.full_Bayes_risk(train_data, train_classes, CT.donneesTest, 'Bayes risque #1',
                                 CT.extent, test_data, test_classes)
 
-def KNN(n_kmean=39,n_knn=5):
+def KNN(n_kmean=37,n_knn=5):
     np.random.seed(0)
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=0.84)
     cluster_centers, cluster_labels = classifiers.full_kmean(n_kmean, train_data,
@@ -70,5 +70,3 @@ if __name__=='__main__':
     Bayes()
     KNN()
     RNN()
-
-

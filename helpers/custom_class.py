@@ -151,13 +151,13 @@ class ClassesTracker :
             # dimension_list = [dimension(name = d_mean_bin, mode = Lab), dimension(name = d_pred_count, mode = Lab)
             #                    , dimension(name = d_mean_bin,mode = HSV), dimension(name = d_pred_bin,mode = HSV),
             #                   dimension(name = d_fractal,mode = RGB)]
-            dimension_list = [dimension(name = d_n_blob, mode = RGB),dimension(name = d_mean_bin, mode = Lab),dimension(name=d_mean_bin, mode=HSV),
+            dimension_list = [dimension(name = d_mean_bin, mode = Lab),dimension(name=d_mean_bin, mode=HSV),
                               dimension(name=d_pred_bin, mode=HSV),dimension(name=d_fractal, mode=RGB)]
         if dims_list_idx == None :
             # self.dims_list_idx=[(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2), (d_pred_count, Lab, 1)
             #                 , (d_mean_bin,HSV,1), (d_pred_bin,HSV,2), (d_pred_bin,HSV,0), (d_fractal,RGB,0)]
-            self.dims_list_idx = [(d_n_blob,RGB,0),(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),(d_mean_bin, HSV, 1),
-                                  (d_pred_bin, HSV, 0), (d_fractal, RGB, 0)]
+            self.dims_list_idx = [(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),(d_mean_bin, HSV, 1),
+                                (d_fractal, RGB, 0)]
         else :
             self.dims_list_idx=dims_list_idx
         print('Watching ',len(self.dims_list_idx),'dims')
