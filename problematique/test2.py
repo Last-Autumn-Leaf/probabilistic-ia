@@ -66,5 +66,7 @@ np.random.seed(0)
 CT = ClassesTracker()
 
 if __name__=='__main__':
-    KNN()
+    # Bayes()
+    # KNN()
+    RNN()
     plt.show()

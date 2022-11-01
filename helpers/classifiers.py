@@ -226,7 +226,10 @@ def nn_classify(n_hidden_layers, n_neurons, train_data, classes, test1, test2=No
     # TODO problématique: implement a mechanism to keep the best model and/or compare model performance across training runs
     NNmodel = load_model('3classes.h5')
 
+
     # classifie les données de test
+    predictions_test3 = np.argmax(NNmodel.predict(an.scaleDataKnownMinMax(validation_data, minmax)), axis=1)
+
     # decode la sortie one hot en numéro de classe 0 à N directement
     predictions_test1 = np.argmax(NNmodel.predict(an.scaleDataKnownMinMax(test1, minmax)), axis=1)
     predictions_test2 = np.argmax(NNmodel.predict(an.scaleDataKnownMinMax(test2, minmax)), axis=1) \
@@ -346,7 +349,7 @@ def full_nn(n_hiddenlayers, n_neurons, train_data, train_classes, test1, title, 
     ### a commenter pour que le labo fonctionne ###
     pred2 = np.expand_dims(predictions2, axis=1)
     pred2 = pred2.astype('uint8')
-    confus_mat = confusion_matrix(target=classestest2, pred=pred2, n_classes=N_CLASSES)
+    confus_mat = confusion_matrix(target=classes2, pred=pred2, n_classes=N_CLASSES)
     print(f'confusion matrix = {confus_mat}')
     ### --- ###
 
