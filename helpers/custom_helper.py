@@ -225,3 +225,8 @@ def loadStoreBlobData(path=stored_blob_path):
     if not os.path.exists(path) : # Security check
         storeBlobData()
     return np.load(path)
+
+N_KMEAN=14
+N_KNN=5
+KNN_MODEL_PATH=(f'../model/KNN_MODEL_{N_KMEAN}.npy',
+                f'../model/KNN_MODEL_{N_KNN}.npy')
