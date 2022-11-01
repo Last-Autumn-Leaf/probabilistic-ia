@@ -115,16 +115,11 @@ import glob
 from skimage import io as skiio
 from skimage import color as skic
 from helpers.analysis import Extent,genDonneesTest
-PREVENT_OS_SORT = True
+
 class ClassesTracker :
     def __init__(self,dimension_list=None,dims_list_idx=None):
         # liste de toutes les images
-        image_folder = r"." + os.sep + "baseDeDonneesImages"
-        _path = glob.glob(image_folder + os.sep + r"*.jpg")
-        # To not be depedent of the OS-sort
-        if PREVENT_OS_SORT :
-            _path.sort()
-            np.random.shuffle(_path)
+        _path=load_images()
 
         #image_list = os.listdir(image_folder)
         # Filtrer pour juste garder les images
@@ -156,16 +151,16 @@ class ClassesTracker :
             # dimension_list = [dimension(name = d_mean_bin, mode = Lab), dimension(name = d_pred_count, mode = Lab)
             #                    , dimension(name = d_mean_bin,mode = HSV), dimension(name = d_pred_bin,mode = HSV),
             #                   dimension(name = d_fractal,mode = RGB)]
-            dimension_list = [dimension(name = d_mean_bin, mode = Lab),dimension(name=d_mean_bin, mode=HSV),
+            dimension_list = [dimension(name = d_n_blob, mode = RGB),dimension(name = d_mean_bin, mode = Lab),dimension(name=d_mean_bin, mode=HSV),
                               dimension(name=d_pred_bin, mode=HSV),dimension(name=d_fractal, mode=RGB)]
         if dims_list_idx == None :
             # self.dims_list_idx=[(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2), (d_pred_count, Lab, 1)
             #                 , (d_mean_bin,HSV,1), (d_pred_bin,HSV,2), (d_pred_bin,HSV,0), (d_fractal,RGB,0)]
-            self.dims_list_idx = [(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),(d_mean_bin, HSV, 1),
+            self.dims_list_idx = [(d_n_blob,RGB,0),(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),(d_mean_bin, HSV, 1),
                                   (d_pred_bin, HSV, 0), (d_fractal, RGB, 0)]
         else :
             self.dims_list_idx=dims_list_idx
-
+        print('Watching ',len(self.dims_list_idx),'dims')
         self.tracker = VariablesTracker(dimension_list)
         self.tracker.update_dataset_size(len(self.images))
 
@@ -237,9 +232,15 @@ class ClassesTracker :
                 image = np.round(image / np.max(image) * (n_bins - 1)).astype('int32')
                 for var in self.tracker :
                     if var.mode==RGB :
-                        self.tracker.compute_for_image(image, i, var)
+                        if var.name ==d_n_blob and useStoredBlob :
+                            continue
+                        else:
+                            self.tracker.compute_for_image(image, i, var)
 
-
+        if useStoredBlob :
+            for var in self.tracker:
+                if var.mode == RGB and var.name == d_n_blob:
+                    var.data[:4]=loadStoreBlobData()
 
         self.tracker.compute_mean()
 

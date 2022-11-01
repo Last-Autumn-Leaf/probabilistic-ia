@@ -1,9 +1,12 @@
+import glob
+import os
 from collections import defaultdict
 import numpy as np
 import skimage.color
 
 from skimage.color import rgb2gray
 from skimage.feature import canny, blob_doh, blob_dog
+from skimage import io as skiio
 
 N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
@@ -103,11 +106,20 @@ def number_of_blob(image,max_sigma=30,th=0.1) :
 
     image=image.astype('uint8')
     image_gray = rgb2gray(image)
-    #blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
-    #return [len(blobs_doh)]*3
+
+    '''blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
+    if len(blobs_doh)!=0 :
+        return [len(blobs_doh),np.max(blobs_doh[:, 2]),np.mean(blobs_doh[:, 2])]
+    else :
+        return [0]*3'''
+
+    # using DOG
     blobs_dog = blob_dog(image_gray, max_sigma=max_sigma, threshold=th)
     blobs_dog[:, 2] = blobs_dog[:, 2] * np.sqrt(2)
-    return [len(blobs_dog),np.max(blobs_dog[:, 2]),np.mean(blobs_dog[:, 2])]
+    if len(blobs_dog)!=0 :
+        return [len(blobs_dog),np.max(blobs_dog[:, 2]),np.mean(blobs_dog[:, 2])]
+    else :
+        return [0]*3
 
 # ------ MODE NAMES :
 RGB = 'RGB'
@@ -184,3 +196,32 @@ def arrange_train_data(train_data):
     return train_data
 
 
+
+
+PREVENT_OS_SORT = True
+def load_images():
+    image_folder = r"." + os.sep + "baseDeDonneesImages"
+    _path = glob.glob(image_folder + os.sep + r"*.jpg")
+    # To not be depedent of the OS-sort
+    if PREVENT_OS_SORT:
+        _path.sort()
+        np.random.shuffle(_path)
+    return _path
+
+useStoredBlob = True
+DEFAULT_BLOB_BINS=256
+stored_blob_path=f'../problematique/blob_{DEFAULT_BLOB_BINS}.npy'
+def storeBlobData(path=stored_blob_path,n_bins=DEFAULT_BLOB_BINS):
+    arr =np.zeros((3,980))
+    images = np.array([np.array(skiio.imread(image)) for image in load_images()])
+
+    for i,image in enumerate(images) :
+        image = np.round(image / np.max(image) * (n_bins - 1)).astype('int32')
+        arr[0:4,i]=d_n_blob_f(image)
+    np.save(path,arr)
+
+def loadStoreBlobData(path=stored_blob_path):
+
+    if not os.path.exists(path) : # Security check
+        storeBlobData()
+    return np.load(path)

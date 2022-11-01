@@ -217,7 +217,7 @@ def graphs3d():
 
 def main():
     np.random.seed(0)
-    for i in range(3):
+    for i in range(1):
         np.random.seed(0)
         bar_hist(mode=RGB, dim=d_n_blob, dim_index=i, n_bin=70)
     plt.show()

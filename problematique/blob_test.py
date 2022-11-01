@@ -9,7 +9,7 @@ from skimage import io as skiio
 import matplotlib.pyplot as plt
 import numpy as np
 
-from helpers.custom_helper import timeThat
+from helpers.custom_helper import timeThat, storeBlobData
 
 
 def main(path,max_sigma=30,th=0.1):
@@ -54,7 +54,6 @@ def number_of_blob(image,max_sigma=30,th=0.1) :
     return len(blobs_doh)
 
 
-
 def time_numblob_fun():
     image_folder = r"." + os.sep + "baseDeDonneesImages"
     _path = glob.glob(image_folder + os.sep + r"*.jpg")
@@ -64,8 +63,5 @@ def time_numblob_fun():
             number_of_blob(image)
 
 if __name__ == '__main__':
-    image_folder = r"." + os.sep + "baseDeDonneesImages"
-    _path = glob.glob(image_folder + os.sep + r"*.jpg")
-
-    main(_path[0])
-    plt.show()
+    with timeThat('storing blob in'):
+        storeBlobData()
