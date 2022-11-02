@@ -65,7 +65,6 @@ def fractal_dimension(Z, threshold=None, Canny = False, sigma = None): # Z = ima
     # Only for 2d image
     assert(len(Z.shape) == 2)
 
-    # From https://github.com/rougier/numpy-100 (#87)
     def boxcount(Z, k):
         S = np.add.reduceat(
             np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
