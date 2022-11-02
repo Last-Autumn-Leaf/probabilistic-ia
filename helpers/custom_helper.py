@@ -9,7 +9,7 @@ from skimage import io as skiio
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-N_CLASSES=4
+N_CLASSES=3
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
     store = defaultdict(int)
@@ -255,6 +255,6 @@ N_KMEAN=6
 N_KNN=5
 KNN_MODEL_PATH=(f'../model/KNN_MODEL_{N_KMEAN}.npy',f'../model/KNN_MODEL_{N_KNN}.npy') if N_CLASSES==4 else  (f'../model/KNN_3MODEL_{N_KMEAN}.npy',f'../model/KNN_3MODEL_{N_KNN}.npy')
 
-HIDDEN_LAYERS=7
-N_NEURONS=5
+HIDDEN_LAYERS=6
+N_NEURONS=16
 RNN_MODEL_PAH=f'../model/RNN_h{HIDDEN_LAYERS}_n{N_NEURONS}_c{N_CLASSES}.h5'
