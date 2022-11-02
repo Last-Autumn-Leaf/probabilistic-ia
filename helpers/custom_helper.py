@@ -9,7 +9,7 @@ from skimage import io as skiio
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-N_CLASSES=3
+N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
     store = defaultdict(int)
