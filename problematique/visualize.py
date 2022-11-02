@@ -115,15 +115,13 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
     plt.show()
 
 def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=100):
-    IC = ImageCollection()
-    IC.AjoutSubClasses()
 
     dimensions_list = [dimension(name=dim, mode=mode)]
-    tracker = VariablesTracker(dimensions_list)
 
-    with timeThat('Get Stats'):
-        IC.getStat([i for i in range(980)], tracker)
+    picked_vars = [(dim, mode, dim_index)]
+    CT = ClassesTracker(dimensions_list, picked_vars)
 
+    tracker = CT.tracker
     fig = plt.figure()
     fig.suptitle(f'Bar histogram {dim}', fontsize=20)
     #ax = fig.subplots(N_CLASSES, 1)
@@ -132,7 +130,7 @@ def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=100):
 
     data = np.round(data / max(data) * n_bin)
     for i in range(N_CLASSES):
-        x = data[IC.all_classes[i]]
+        x = data[CT.all_classes[i]]
         y = np.bincount(x.astype('int32'), minlength=n_bin + 1)
         axe.bar(x=[i for i in range(n_bin + 1)], height=y, align='edge', color=CLASS_COLOR_ARRAY[i],alpha=0.5)
 
@@ -290,5 +288,6 @@ def main():
 if __name__ == '__main__':
     # brute_force_bar()
     # main()
-    bar_hist(dim=d_n_edges_sum)
+    bar_hist(mode = RGB, dim=d_fractal, dim_index=0)
+
     plt.show()

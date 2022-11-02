@@ -5,7 +5,7 @@ from helpers.custom_class import *
 import matplotlib.pyplot  as plt
 from helpers.custom_class import ClassesTracker
 
-def plotALlConfusionMaxtixes ():
+def plotALlConfusionMatrixes ():
 
     def createConfusionMatrix(pred,target):
         cf_m=confusion_matrix(pred,target)
@@ -77,4 +77,4 @@ np.random.seed(0)
 CT = ClassesTracker()
 
 if __name__=='__main__':
-    plotALlConfusionMaxtixes()
+    plotALlConfusionMatrixes()

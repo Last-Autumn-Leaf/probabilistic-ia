@@ -62,9 +62,6 @@ class ImageCollection:
     n_bins = 256  #
 
     all_classes=[coast_id,forest_id,street_id]
-    # DO SUB CLASSES
-    if N_CLASSES > 3:
-        ImageCollection.AjoutSubClasses()
 
 
     def images_display(self,indexes):

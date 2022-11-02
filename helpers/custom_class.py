@@ -160,12 +160,14 @@ class ClassesTracker :
         with timeThat('Pre processing of all the data'):
             self.pre_process_all_data(self.images)
 
-        plist =[self.tracker.pick_var(dim[0],dim[1],dim[2]) for dim in self.dims_list_idx]
-        self.extent=Extent(ptList=np.stack(plist,axis=1))
+        if len(self.dims_list_idx)!= 1:
+            plist =[self.tracker.pick_var(dim[0],dim[1],dim[2]) for dim in self.dims_list_idx]
+            self.extent=Extent(ptList=np.stack(plist,axis=1))
 
-        # génération de données aléatoires
-        ndonnees = 5000
-        self.donneesTest = genDonneesTest(ndonnees, self.extent, n=len(self.dims_list_idx))
+            # génération de données aléatoires
+            ndonnees = 5000
+            self.donneesTest = genDonneesTest(ndonnees, self.extent, n=len(self.dims_list_idx))
+
 
 
     def pre_process_all_data(self,images,n_bins=256):
