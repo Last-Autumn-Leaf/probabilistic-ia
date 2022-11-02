@@ -9,9 +9,6 @@ from helpers.custom_class import *
 import matplotlib.pyplot  as plt
 from helpers.custom_class import ClassesTracker
 
-
-def
-
 def Bayes(n=0.83):
     np.random.seed(0)
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=n)

@@ -333,13 +333,6 @@ def full_nn(n_hiddenlayers, n_neurons, train_data, train_classes, test1, title, 
     """
     predictions, predictions2 = nn_classify(n_hiddenlayers, n_neurons, train_data, train_classes.ravel(), test1, test2)
 
-    ### a commenter pour que le labo fonctionne ###
-    pred2 = np.expand_dims(predictions2, axis=1)
-    pred2 = pred2.astype('uint8')
-    confus_mat = confusion_matrix(target=classes2, pred=pred2, n_classes=N_CLASSES)
-    print(f'confusion matrix = {confus_mat}')
-    ### --- ###
-
     predictions = predictions.reshape(len(test1), 1)
 
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
