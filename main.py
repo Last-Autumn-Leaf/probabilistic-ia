@@ -4,15 +4,15 @@ import problematique.visualize as viz
 
 arg2Func={'rnn': model.RNN,
           'bayes':model.Bayes,
-          'knn':model.KNN,}
+          'knn':model.KNN,
+          '2d':viz.graphs2d,
+          '1d':viz.Hist1D}
 
 def main(argument) :
     if argument =='main.py':
         return
     arg2Func[argument]()
     viz.plt.show()
-
-
 
 
 if __name__=='__main__':
