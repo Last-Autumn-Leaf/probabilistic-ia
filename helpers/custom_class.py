@@ -1,3 +1,5 @@
+import os
+
 from helpers.custom_helper import *
 
 #---------------------- Dimension tracker class
@@ -115,54 +117,55 @@ from skimage import io as skiio
 from skimage import color as skic
 from helpers.analysis import Extent,genDonneesTest
 
-class ClassesTracker :
+class ClassesTracker(object) :
+
+
     def __init__(self,dimension_list=None,dims_list_idx=None):
+
         # liste de toutes les images
-        _path=load_images()
+        _path = load_images()
 
         # Filtrer pour juste garder les images
         self.images = np.array([np.array(skiio.imread(image)) for image in _path])
-        self.coast_id=[]
-        self.forest_id=[]
-        self.street_id=[]
-        self.class_labels=np.zeros((len(_path),1)).astype('int32')
+        self.coast_id = []
+        self.forest_id = []
+        self.street_id = []
+        self.class_labels = np.zeros((len(_path), 1)).astype('int32')
         for i, name_file in enumerate(_path):
             if "coast" in name_file:
                 self.coast_id.append(i)
-                self.class_labels[i]=0
+                self.class_labels[i] = 0
             elif "forest" in name_file:
                 self.forest_id.append(i)
-                self.class_labels[i]=1
+                self.class_labels[i] = 1
             else:
                 self.street_id.append(i)
-                self.class_labels[i]=2
+                self.class_labels[i] = 2
 
-        self.all_classes= [self.coast_id,self.forest_id,self.street_id]
+        self.all_classes = [self.coast_id, self.forest_id, self.street_id]
         # DO SUB CLASSES
-        if N_CLASSES >3 :
+        if N_CLASSES > 3:
             self.AjoutSubClasses()
 
-
-        #This should be coherent
-        if dimension_list ==None :
-            dimension_list = [dimension(name = d_mean_bin, mode = Lab),dimension(name=d_mean_bin, mode=HSV),
-                              dimension(name=d_pred_bin, mode=HSV),dimension(name=d_fractal, mode=RGB)]
-        if dims_list_idx == None :
-            self.dims_list_idx = [(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),
-                                  (d_mean_bin, HSV, 1),(d_fractal, RGB, 0)]
-        else :
-            self.dims_list_idx=dims_list_idx
-        print('Watching ',len(self.dims_list_idx),'dims')
+        # This should be coherent
+        if dimension_list == None:
+            dimension_list = [dimension(name=d_mean_bin, mode=Lab), dimension(name=d_mean_bin, mode=HSV), dimension(name=d_fractal, mode=RGB)]
+        if dims_list_idx == None:
+            self.dims_list_idx = [(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2),
+                                  (d_mean_bin, HSV, 1), (d_fractal, RGB, 0)]
+        else:
+            self.dims_list_idx = dims_list_idx
+        print('Watching ', len(self.dims_list_idx), 'dims')
         self.tracker = VariablesTracker(dimension_list)
         self.tracker.update_dataset_size(len(self.images))
 
-        self.n_bins=256
+        self.n_bins = 256
         with timeThat('Pre processing of all the data'):
             self.pre_process_all_data(self.images)
 
-        if len(self.dims_list_idx)!= 1:
-            plist =[self.tracker.pick_var(dim[0],dim[1],dim[2]) for dim in self.dims_list_idx]
-            self.extent=Extent(ptList=np.stack(plist,axis=1))
+        if len(self.dims_list_idx) != 1:
+            plist = [self.tracker.pick_var(dim[0], dim[1], dim[2]) for dim in self.dims_list_idx]
+            self.extent = Extent(ptList=np.stack(plist, axis=1))
 
             # génération de données aléatoires
             ndonnees = 5000

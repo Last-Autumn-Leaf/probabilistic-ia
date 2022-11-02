@@ -8,8 +8,9 @@ from skimage.feature import canny, blob_dog
 from skimage import io as skiio
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pickle
 
-N_CLASSES=4
+N_CLASSES=3
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
 def getHighestFrequencyVector(image):
     store = defaultdict(int)
@@ -185,8 +186,8 @@ def timeThat(name=''):
         print(name+' finished in ',timedelta(seconds=end-start))
 
 
-CLASS_COLOR_ARRAY=['blue','green','black']+(['red'] if N_CLASSES==4 else [])
-class_labels=['coast','forest','street']+(['sunset'] if N_CLASSES==4 else [])
+CLASS_COLOR_ARRAY=['blue','green','black','red']
+class_labels=['coast','forest','street','sunset']
 
 #to adapt to a good dimension
 def arrange_train_data(train_data):
@@ -203,10 +204,13 @@ def arrange_train_data(train_data):
 
 
 PREVENT_OS_SORT = True
+
+root = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 def load_images():
-    root=os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
     image_folder = root+ os.sep +r"problematique" + os.sep + "baseDeDonneesImages"
     _path = glob.glob(image_folder + os.sep + r"*.jpg")
+    _path=[os.path.basename(os.path.dirname(p))+os.sep+os.path.basename(p) for p in _path]
+    #_path=[os.sep+os.path.basename(os.path.dirname(os.path.dirname(p)))+os.sep+os.path.basename(os.path.dirname(p))+os.sep+os.path.basename(p) for p in _path]
     # To not be depedent of the OS-sort
     if PREVENT_OS_SORT:
         _path.sort()
@@ -240,6 +244,8 @@ def confusion_matrix(pred,target, n_classes = N_CLASSES):
     return confus_mat
 
 def plot_confusion_matrix(df_confusion, labels=class_labels, title='Confusion matrix',ax=None):
+    if len(df_confusion)==3 :
+        labels=labels[:3]
     if ax ==None:
         ax = plt.subplot()
     sns.heatmap(df_confusion, cmap=plt.get_cmap('Blues'), annot=True, fmt='g',
@@ -253,8 +259,12 @@ def plot_confusion_matrix(df_confusion, labels=class_labels, title='Confusion ma
 
 N_KMEAN=6
 N_KNN=5
-KNN_MODEL_PATH=(f'../model/KNN_MODEL_{N_KMEAN}.npy',f'../model/KNN_MODEL_{N_KNN}.npy') if N_CLASSES==4 else  (f'../model/KNN_3MODEL_{N_KMEAN}.npy',f'../model/KNN_3MODEL_{N_KNN}.npy')
+KNN_MODEL_PATH=(root+os.sep+f'/model/KNN_MODEL_{N_KMEAN}.npy',f'../model/KNN_MODEL_{N_KNN}.npy') if N_CLASSES==4 else  (root+os.sep+f'model/KNN_3MODEL_{N_KMEAN}.npy',f'../model/KNN_3MODEL_{N_KNN}.npy')
 
 HIDDEN_LAYERS=6
 N_NEURONS=16
-RNN_MODEL_PAH=f'../model/RNN_h{HIDDEN_LAYERS}_n{N_NEURONS}_c{N_CLASSES}.h5'
+RNN_MODEL_PAH=root+os.sep+f'/model/RNN_h{HIDDEN_LAYERS}_n{N_NEURONS}_c{N_CLASSES}.h5'
+
+DEFAULT_CT_PATH=root+os.sep+f'model/default_CT_{N_CLASSES}.pkl'
+
+loadCT = lambda x=4: pickle.load(open(root+os.sep+f'model/default_CT_{x}.pkl','rb'))
