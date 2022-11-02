@@ -53,7 +53,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 
 import helpers.analysis as an
-from helpers.custom_helper import arrange_train_data, N_CLASSES
+from helpers.custom_helper import arrange_train_data, N_CLASSES, RNN_MODEL_PAH
 
 
 def compute_prob_dens_gaussian(train_data, test_data1, test_data2):
@@ -211,12 +211,12 @@ def nn_classify(n_hidden_layers, n_neurons, train_data, classes, test1, test2=No
 
 
     # Save trained model to disk
-    NNmodel.save('3classes.h5')
+    NNmodel.save(RNN_MODEL_PAH)
     an.plot_metrics(NNmodel)
 
     # Test model (loading from disk)
     # TODO problématique: implement a mechanism to keep the best model and/or compare model performance across training runs
-    NNmodel = load_model('3classes.h5')
+    NNmodel = load_model(RNN_MODEL_PAH)
 
 
     # classifie les données de test

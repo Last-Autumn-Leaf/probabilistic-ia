@@ -110,8 +110,7 @@ class VariablesTracker:
 
 
 #---------------------- Classes tracker class
-import os
-import glob
+
 from skimage import io as skiio
 from skimage import color as skic
 from helpers.analysis import Extent,genDonneesTest
@@ -121,9 +120,7 @@ class ClassesTracker :
         # liste de toutes les images
         _path=load_images()
 
-        #image_list = os.listdir(image_folder)
         # Filtrer pour juste garder les images
-        #image_list = [i for i in image_list if '.jpg' in i]
         self.images = np.array([np.array(skiio.imread(image)) for image in _path])
         self.coast_id=[]
         self.forest_id=[]
@@ -148,14 +145,9 @@ class ClassesTracker :
 
         #This should be coherent
         if dimension_list ==None :
-            # dimension_list = [dimension(name = d_mean_bin, mode = Lab), dimension(name = d_pred_count, mode = Lab)
-            #                    , dimension(name = d_mean_bin,mode = HSV), dimension(name = d_pred_bin,mode = HSV),
-            #                   dimension(name = d_fractal,mode = RGB)]
             dimension_list = [dimension(name = d_mean_bin, mode = Lab),dimension(name=d_mean_bin, mode=HSV),
                               dimension(name=d_pred_bin, mode=HSV),dimension(name=d_fractal, mode=RGB)]
         if dims_list_idx == None :
-            # self.dims_list_idx=[(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2), (d_pred_count, Lab, 1)
-            #                 , (d_mean_bin,HSV,1), (d_pred_bin,HSV,2), (d_pred_bin,HSV,0), (d_fractal,RGB,0)]
             self.dims_list_idx = [(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),
                                   (d_mean_bin, HSV, 1),(d_fractal, RGB, 0)]
         else :

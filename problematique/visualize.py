@@ -1,10 +1,8 @@
-import numpy as np
-import numpy.random
 import math
 import itertools
 
 from ImageCollection import ImageCollection
-from helpers.custom_class import dimension, VariablesTracker, getDefaultVar, ClassesTracker
+from helpers.custom_class import dimension, VariablesTracker, ClassesTracker
 from helpers.custom_helper import *
 from helpers.analysis import viewEllipse
 import matplotlib.pyplot as plt
@@ -287,11 +285,7 @@ def graphs2d():
 
 
 def main():
-    np.random.seed(0)
-    for i in range(1):
-        np.random.seed(0)
-        bar_hist(mode=RGB, dim=d_n_blob, dim_index=i, n_bin=70)
-    plt.show()
+    pass
 
 if __name__ == '__main__':
     # brute_force_bar()

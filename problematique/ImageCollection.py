@@ -13,16 +13,15 @@ Méthodes statiques: TODO JB move to helpers
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import glob
 from skimage import color as skic
 from skimage import io as skiio
 import matplotlib.cm as cm
-import pandas as pd
+
 
 from helpers.analysis import viewEllipse
 from helpers.custom_class import dimension, VariablesTracker
-from helpers.custom_helper import getHighestFrequencyVector, HSV, RGB, Lab, class2detailed_repr, CLASS_COLOR_ARRAY, \
-    d_pred_bin
+from helpers.custom_helper import HSV, RGB, Lab, class2detailed_repr, CLASS_COLOR_ARRAY, \
+    d_pred_bin, load_images, N_CLASSES
 
 
 class ImageCollection:
@@ -31,12 +30,7 @@ class ImageCollection:
     """
 
     # liste de toutes les images
-    image_folder = r"." + os.sep + "baseDeDonneesImages"
-    _path = glob.glob(image_folder + os.sep + r"*.jpg")
-    image_list = os.listdir(image_folder)
-    # Filtrer pour juste garder les images
-    image_list = [i for i in image_list if '.jpg' in i]
-
+    _path = load_images()
 
     all_images_loaded = False
     images = []
@@ -56,7 +50,7 @@ class ImageCollection:
     coast_id=[]
     forest_id=[]
     street_id=[]
-    for i,name_file in  enumerate(image_list) :
+    for i,name_file in  enumerate(_path) :
         if "coast" in name_file :
             coast_id.append(i)
         elif "forest" in name_file :
@@ -68,6 +62,9 @@ class ImageCollection:
     n_bins = 256  #
 
     all_classes=[coast_id,forest_id,street_id]
+    # DO SUB CLASSES
+    if N_CLASSES > 3:
+        ImageCollection.AjoutSubClasses()
 
 
     def images_display(self,indexes):
@@ -239,7 +236,6 @@ class ImageCollection:
             ax[num_images,3].scatter(range(start, end), pixel_valuesHSV[2, start:end],s=5, c='k')
             image_name = ImageCollection.image_list[indexes[num_images]]
 
-
     def getStat(self,indexes,tracker,n_bins=256):
         if type(indexes) == int:
             indexes = [indexes]
@@ -290,47 +286,6 @@ class ImageCollection:
             tracker.compute_mean()
 
         return tracker
-
-
-    def scatterGraph2D(self,dim1,dim2,tracker,n_bins=256):
-        var1=dim1[0]
-        mode1=dim1[1]
-        index1=dim1[2]
-
-        var2=dim2[0]
-        mode2=dim2[1]
-        index2=dim2[2]
-
-        colors=CLASS_COLOR_ARRAY
-        #colors={k:v for k,v in zip(self.all_classes,colors) }
-        fig, ax = plt.subplots(1)
-
-        for i,classes in enumerate(self.all_classes) :
-            if i%1 ==0:
-                print(f"classe {i}")
-            tracker.update_dataset_size(len(classes))
-            self.getStat(classes,tracker,n_bins=n_bins)
-            x=tracker.pick_var(var1,mode1,index1)
-            y=tracker.pick_var(var2,mode2,index2)
-
-            ax.scatter(x, y, alpha=0.4,color=colors[i],marker='.')
-
-            data_ellipse=np.array((x,y)).T
-            viewEllipse(data = data_ellipse,ax = ax, facecolor = colors[i],scale= 1,alpha=0.25)
-
-        ax.set_title('')
-
-        ax.set(xlabel=f"{class2detailed_repr[mode1][index1]}({var1})", ylabel=f"{class2detailed_repr[mode2][index2]}({var2})")
-        #ax.axes.set_aspect('equal')
-    def GetCovMatrix(self, dimension_parameters, tracker,n_bins = 256):
-        for i, classes in enumerate(self.all_classes):
-            if i%1 ==0:
-                print(f"classe {i}")
-            tracker.update_dataset_size(len(classes))
-            self.getStat(classes.idx_list, tracker, n_bins=n_bins)
-            v = tracker.variables
-            a = v[0].data
-
 
     def AjoutSubClasses(self):
         dimensions_list = [dimension(name=d_pred_bin, mode=HSV)]

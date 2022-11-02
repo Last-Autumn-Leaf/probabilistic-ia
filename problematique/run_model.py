@@ -1,9 +1,5 @@
 import os.path
 
-import numpy as np
-
-import helpers.custom_helper
-
 from helpers import classifiers
 from helpers.custom_class import *
 import matplotlib.pyplot  as plt
@@ -50,8 +46,8 @@ def RNN():
     test_data, test_classes = CT.get_data_classwise(n=0.80)[2:4]
 
     ### Hyperparametres ###
-    n_hidden_layers = 7
-    n_neurons = 5
+    n_hidden_layers = HIDDEN_LAYERS
+    n_neurons = N_NEURONS
     ### --- ###
 
     score, pred, target=classifiers.full_nn(n_hiddenlayers = n_hidden_layers, n_neurons= n_neurons, train_data= Quatres_data,
@@ -75,7 +71,6 @@ def param_search_KNN(it=100):
                         print('storing for',c_score,n_kmean,n_knn)
                         np.save(KNN_MODEL_PATH[0],knn_data[0])
                         np.save(KNN_MODEL_PATH[1],knn_data[1])
-
 
 
 np.random.seed(0)

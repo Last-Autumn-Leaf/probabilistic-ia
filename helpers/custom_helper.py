@@ -4,7 +4,7 @@ from collections import defaultdict
 import numpy as np
 import skimage.color
 
-from skimage.feature import canny, blob_doh, blob_dog
+from skimage.feature import canny, blob_dog
 from skimage import io as skiio
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -113,15 +113,8 @@ def d_n_edges_sum_f(image,threshold=75):
 
 #Only works inRGB
 def number_of_blob(image,max_sigma=30,th=0.1) :
-
     image=image.astype('uint8')
     image_gray = skimage.color.rgb2gray(image)
-
-    '''blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
-    if len(blobs_doh)!=0 :
-        return [len(blobs_doh),np.max(blobs_doh[:, 2]),np.mean(blobs_doh[:, 2])]
-    else :
-        return [0]*3'''
 
     # using DOG
     blobs_dog = blob_dog(image_gray, max_sigma=max_sigma, threshold=th)
@@ -196,7 +189,7 @@ def timeThat(name=''):
 CLASS_COLOR_ARRAY=['blue','green','black']+(['red'] if N_CLASSES==4 else [])
 class_labels=['coast','forest','street']+(['sunset'] if N_CLASSES==4 else [])
 
-
+#to adapt to a good dimension
 def arrange_train_data(train_data):
     if type(train_data)== list :
         temp=[]
@@ -208,8 +201,6 @@ def arrange_train_data(train_data):
         x, y, z = train_data.shape
         train_data = train_data.reshape(x*y, z)
     return train_data
-
-
 
 
 PREVENT_OS_SORT = True
@@ -235,7 +226,6 @@ def storeBlobData(path=stored_blob_path,n_bins=DEFAULT_BLOB_BINS):
     np.save(path,arr)
 
 def loadStoreBlobData(path=stored_blob_path):
-
     if not os.path.exists(path) : # Security check
         storeBlobData()
     return np.load(path)
@@ -264,3 +254,7 @@ def plot_confusion_matrix(df_confusion, labels=class_labels, title='Confusion ma
 N_KMEAN=6
 N_KNN=5
 KNN_MODEL_PATH=(f'../model/KNN_MODEL_{N_KMEAN}.npy',f'../model/KNN_MODEL_{N_KNN}.npy') if N_CLASSES==4 else  (f'../model/KNN_3MODEL_{N_KMEAN}.npy',f'../model/KNN_3MODEL_{N_KNN}.npy')
+
+HIDDEN_LAYERS=7
+N_NEURONS=5
+RNN_MODEL_PAH=f'../model/RNN_h{HIDDEN_LAYERS}_n{N_NEURONS}_c{N_CLASSES}.h5'

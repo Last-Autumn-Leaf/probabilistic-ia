@@ -1,13 +1,11 @@
 import glob
 import os
 from math import sqrt
-from skimage import data
 from skimage.feature import blob_dog, blob_log, blob_doh
 from skimage.color import rgb2gray
 from skimage import io as skiio
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from helpers.custom_helper import timeThat, storeBlobData
 
