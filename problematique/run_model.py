@@ -87,4 +87,4 @@ def param_search_KNN(it=200):
 
 
 if __name__=='__main__':
-    param_search_KNN()
+    plotALlConfusionMatrixes()

@@ -32,6 +32,7 @@ Pour lancer une classification il suffit de lancer le main.py avec un des argume
 Il est ausis possible de visualiser les différentes métriques via :
 - 1d
 - 2d
+- conf
 
 ### Exemple:
 

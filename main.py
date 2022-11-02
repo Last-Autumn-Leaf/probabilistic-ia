@@ -6,7 +6,8 @@ arg2Func={'rnn': model.RNN,
           'bayes':model.Bayes,
           'knn':model.KNN,
           '2d':viz.graphs2d,
-          '1d':viz.Hist1D}
+          '1d':viz.Hist1D,
+          'conf':model.plotALlConfusionMatrixes}
 
 def main(argument) :
     if argument =='main.py':
