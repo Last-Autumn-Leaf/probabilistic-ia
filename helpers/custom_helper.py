@@ -209,7 +209,7 @@ root = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 def load_images():
     image_folder = root+ os.sep +r"problematique" + os.sep + "baseDeDonneesImages"
     _path = glob.glob(image_folder + os.sep + r"*.jpg")
-    _path=[os.path.basename(os.path.dirname(p))+os.sep+os.path.basename(p) for p in _path]
+    _path=[os.path.basename(os.path.dirname(os.path.dirname(p)))+os.sep+os.path.basename(os.path.dirname(p))+os.sep+os.path.basename(p) for p in _path]
     #_path=[os.sep+os.path.basename(os.path.dirname(os.path.dirname(p)))+os.sep+os.path.basename(os.path.dirname(p))+os.sep+os.path.basename(p) for p in _path]
     # To not be depedent of the OS-sort
     if PREVENT_OS_SORT:
@@ -257,7 +257,7 @@ def plot_confusion_matrix(df_confusion, labels=class_labels, title='Confusion ma
     ax.xaxis.set_ticklabels(labels)
     ax.yaxis.set_ticklabels(labels)
 
-N_KMEAN=6
+N_KMEAN=13
 N_KNN=5
 KNN_MODEL_PATH=(root+os.sep+f'/model/KNN_MODEL_{N_KMEAN}.npy',f'../model/KNN_MODEL_{N_KNN}.npy') if N_CLASSES==4 else  (root+os.sep+f'model/KNN_3MODEL_{N_KMEAN}.npy',f'../model/KNN_3MODEL_{N_KNN}.npy')
 
@@ -267,4 +267,11 @@ RNN_MODEL_PAH=root+os.sep+f'/model/RNN_h{HIDDEN_LAYERS}_n{N_NEURONS}_c{N_CLASSES
 
 DEFAULT_CT_PATH=root+os.sep+f'model/default_CT_{N_CLASSES}.pkl'
 
-loadCT = lambda x=4: pickle.load(open(root+os.sep+f'model/default_CT_{x}.pkl','rb'))
+def trytoloadCT(x=4):
+    if os.path.exists(root+os.sep+f'model/default_CT_{x}.pkl'):
+        return pickle.load(open(root+os.sep+f'model/default_CT_{x}.pkl','rb'))
+    else :
+        from helpers.custom_class import ClassesTracker
+        return ClassesTracker()
+
+loadCT = lambda x=4: trytoloadCT(x)

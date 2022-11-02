@@ -31,14 +31,14 @@ def Bayes(n=0.83):
 
 def KNN(n_kmean=N_KMEAN,n_knn=N_KNN,cluster_centers=None,cluster_labels=None,plot=True,search_clusters=False):
     if not search_clusters: np.random.seed(0)
-    helpers.custom_class.N_CLASSES=3
-    CT=loadCT(3)
+    helpers.custom_class.N_CLASSES=4
+    CT=loadCT(4)
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=0.84)
     if cluster_centers == None or cluster_labels==None :
-        if os.path.exists(KNN_MODEL_PATH[0]) and os.path.exists(KNN_MODEL_PATH[1]) :
+        if os.path.exists(KNN_MODEL_PATH[0]) and os.path.exists(KNN_MODEL_PATH[1]) and not search_clusters :
             cluster_centers, cluster_labels =np.load(KNN_MODEL_PATH[0]),np.load(KNN_MODEL_PATH[1])
         else:
-            print('no clusters found')
+            #print('no clusters found')
             cluster_centers, cluster_labels = classifiers.full_kmean(n_kmean, train_data,
         train_classes,'Représentants des ' + f'{n_kmean}' + '-moy',CT.extent,plot=plot)
     score,pred,target= classifiers.full_ppv(n_knn, cluster_centers, cluster_labels, CT.donneesTest,
@@ -68,12 +68,12 @@ def RNN():
 
 
 # -------- recherche d'hyper-paramètres :
-def param_search_KNN(it=100):
+def param_search_KNN(it=200):
     max_knn_score = 0
     with timeThat(f'Best knn score'):
-        for n_kmean in range(4, 20):
+        for n_kmean in range(13, 15):
             print('n_kmean',n_kmean)
-            for n_knn in range(1, n_kmean, 2):
+            for n_knn in range(5, n_kmean, 4):
                 for i in range(it):
                     if int(i/it*100) %20==0: print(int(i / it*100), '%')
                     c_score,knn_data = KNN(n_kmean,n_knn,plot=False,search_clusters=True)
