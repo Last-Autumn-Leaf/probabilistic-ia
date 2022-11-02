@@ -25,6 +25,7 @@ Fonctions disponibles:
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgba
 from matplotlib.patches import Ellipse
 from matplotlib import cm
 import itertools
@@ -115,7 +116,7 @@ def viewEllipse(data, ax, scale=1, facecolor='none', edgecolor='red', **kwargs):
 
     ellipse = Ellipse(moy, width=2*scale*lambdas[1], height=2*scale*lambdas[0],
                       angle= angle, facecolor=facecolor,
-                      edgecolor=edgecolor, linewidth=3, **kwargs)
+                      edgecolor=to_rgba(edgecolor, 1), linewidth=3, **kwargs)
     return ax.add_patch(ellipse)
 
 

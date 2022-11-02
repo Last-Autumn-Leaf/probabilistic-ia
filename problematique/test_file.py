@@ -271,9 +271,12 @@ def graphs2d():
 
             ax[a, b].scatter(xx, yy, alpha=0.2, color=CLASS_COLOR_ARRAY[j],
                              marker='.')
+        for j in range(N_CLASSES):
+            xx = x[CT.all_classes[j]]
+            yy = y[CT.all_classes[j]]
             data_ellipse = np.array((xx, yy)).T
             viewEllipse(data=data_ellipse, ax=ax[a, b],
-                        facecolor=CLASS_COLOR_ARRAY[j], scale=1, alpha=0.5,edgecolor='purple')
+                        facecolor=CLASS_COLOR_ARRAY[j], scale=3, alpha=0.2,edgecolor='yellow')
 
         ax[a,b].set_xlabel(f'{var_x[0]}:{class2detailed_repr[var_x[1]][var_x[2]]}')
         ax[a,b].set_ylabel(f'{var_y[0]}:{class2detailed_repr[var_y[1]][var_y[2]]}')
