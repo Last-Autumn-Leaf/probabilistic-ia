@@ -71,9 +71,9 @@ def RNN():
 def param_search_KNN(it=200):
     max_knn_score = 0
     with timeThat(f'Best knn score'):
-        for n_kmean in range(13, 15):
+        for n_kmean in range(14, 15):
             print('n_kmean',n_kmean)
-            for n_knn in range(5, n_kmean, 4):
+            for n_knn in range(5, 10, 2):
                 for i in range(it):
                     if int(i/it*100) %20==0: print(int(i / it*100), '%')
                     c_score,knn_data = KNN(n_kmean,n_knn,plot=False,search_clusters=True)
