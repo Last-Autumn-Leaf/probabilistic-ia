@@ -156,8 +156,8 @@ class ClassesTracker :
         if dims_list_idx == None :
             # self.dims_list_idx=[(d_mean_bin, Lab, 1), (d_mean_bin, Lab, 2), (d_pred_count, Lab, 1)
             #                 , (d_mean_bin,HSV,1), (d_pred_bin,HSV,2), (d_pred_bin,HSV,0), (d_fractal,RGB,0)]
-            self.dims_list_idx = [(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),(d_mean_bin, HSV, 1),
-                                (d_fractal, RGB, 0)]
+            self.dims_list_idx = [(d_mean_bin,Lab,1),(d_mean_bin, Lab, 2),
+                                  (d_mean_bin, HSV, 1),(d_fractal, RGB, 0)]
         else :
             self.dims_list_idx=dims_list_idx
         print('Watching ',len(self.dims_list_idx),'dims')
@@ -256,7 +256,7 @@ class ClassesTracker :
             data[:,i]=self.tracker.pick_var(var,mode,index)[idx]
         return data
 
-    def get_data_classwise(self,n=0.84):
+    def get_data_classwise(self,n=0.83):
 
         classes=[ self.all_classes[i][:int(n*len(self.all_classes[i]))] for i in range(N_CLASSES)]
         target=[]

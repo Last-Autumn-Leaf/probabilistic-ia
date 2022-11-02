@@ -4,9 +4,10 @@ from collections import defaultdict
 import numpy as np
 import skimage.color
 
-from skimage.color import rgb2gray
 from skimage.feature import canny, blob_doh, blob_dog
 from skimage import io as skiio
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 N_CLASSES=4
 get_n_rand_from_set = lambda sett, n=1 :np.random.choice(sett, n)
@@ -39,6 +40,11 @@ def d_pred_count_f (image):
     return np.array(result)
 
 # Only works in RGB
+def rgb2gray(rgb):
+    r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
+    return gray
+
 fractal_thr=100
 sigma_canny = 8
 def fractal_dimension(Z, threshold=None, Canny = False, sigma = None): # Z = images
@@ -47,10 +53,6 @@ def fractal_dimension(Z, threshold=None, Canny = False, sigma = None): # Z = ima
 
     if sigma ==None:
         sigma=sigma_canny
-    def rgb2gray(rgb):
-        r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
-        gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
-        return gray
 
     Z = Z.astype('float64')
 
@@ -101,11 +103,19 @@ def fractal_dimension(Z, threshold=None, Canny = False, sigma = None): # Z = ima
     return [-coeffs[0]]*3
 
 
+def d_n_edges_sum_f(image,threshold=75):
+    image = image.astype('uint8')
+    image = rgb2gray(image)
+    #image =(image < threshold)
+    image=canny(image,np.sqrt(2))
+    return [np.sum(image)]*3
+
+
 #Only works inRGB
 def number_of_blob(image,max_sigma=30,th=0.1) :
 
     image=image.astype('uint8')
-    image_gray = rgb2gray(image)
+    image_gray = skimage.color.rgb2gray(image)
 
     '''blobs_doh = blob_doh(image_gray, max_sigma=max_sigma, threshold=th / 10)
     if len(blobs_doh)!=0 :
@@ -149,6 +159,8 @@ d_fractal_f = lambda x: fractal_dimension(Z = x,Canny=False)
 d_n_blob = 'numbers of blobs'
 d_n_blob_f = lambda x : number_of_blob(x)
 
+
+d_n_edges_sum='sum of edges'
 # Associative variable means they calculate always using the 3 dimensions of a pixel
 v_pred_bin = 'most predominant triplet bin'
 v_pred_bin_f=lambda x: getHighestFrequencyVector(x)
@@ -163,7 +175,8 @@ var_name2f= {
     v_pred_bin:v_pred_bin_f,
     d_pred_count:d_pred_count_f,
     d_fractal:d_fractal_f,
-    d_n_blob:d_n_blob_f
+    d_n_blob:d_n_blob_f,
+    d_n_edges_sum:d_n_edges_sum_f
 }
 associative_dims=[v_pred_bin]
 
@@ -180,7 +193,8 @@ def timeThat(name=''):
         print(name+' finished in ',timedelta(seconds=end-start))
 
 
-CLASS_COLOR_ARRAY=['blue','green','black','red']
+CLASS_COLOR_ARRAY=['blue','green','black']+(['red'] if N_CLASSES==4 else [])
+class_labels=['coast','forest','street']+(['sunset'] if N_CLASSES==4 else [])
 
 
 def arrange_train_data(train_data):
@@ -226,16 +240,27 @@ def loadStoreBlobData(path=stored_blob_path):
         storeBlobData()
     return np.load(path)
 
-def confusion_matrix(target, pred, n_classes = N_CLASSES):
+def confusion_matrix(pred,target, n_classes = N_CLASSES):
     # Calcul de la matrice de confusion
     confus_mat = np.zeros((n_classes, n_classes))  # Intialisation de la matrice au nombre de symboles disponbles
-
+    pred, target=pred.astype('uint8'),target.astype('uint8')
     for i in range(len(target)):
-        confus_mat[target[i], pred[i]] += 1
+        confus_mat[pred[i],target[i]] += 1
 
     return confus_mat
 
-N_KMEAN=14
+def plot_confusion_matrix(df_confusion, labels=class_labels, title='Confusion matrix',ax=None):
+    if ax ==None:
+        ax = plt.subplot()
+    sns.heatmap(df_confusion, cmap=plt.get_cmap('Blues'), annot=True, fmt='g',
+                ax=ax);  # annot=True to annotate cells, ftm='g' to disable scientific notation
+    # labels, title and ticks
+    ax.set_xlabel('Target labels')
+    ax.set_ylabel('Predicted labels')
+    ax.set_title(title)
+    ax.xaxis.set_ticklabels(labels)
+    ax.yaxis.set_ticklabels(labels)
+
+N_KMEAN=6
 N_KNN=5
-KNN_MODEL_PATH=(f'../model/KNN_MODEL_{N_KMEAN}.npy',
-                f'../model/KNN_MODEL_{N_KNN}.npy')
+KNN_MODEL_PATH=(f'../model/KNN_MODEL_{N_KMEAN}.npy',f'../model/KNN_MODEL_{N_KNN}.npy') if N_CLASSES==4 else  (f'../model/KNN_3MODEL_{N_KMEAN}.npy',f'../model/KNN_3MODEL_{N_KNN}.npy')

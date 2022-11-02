@@ -9,6 +9,19 @@ from helpers.custom_class import *
 import matplotlib.pyplot  as plt
 from helpers.custom_class import ClassesTracker
 
+def plotALlConfusionMaxtixes ():
+
+    def createConfusionMatrix(pred,target):
+        cf_m=confusion_matrix(pred,target)
+        plot_confusion_matrix(cf_m)
+
+    foo_list = [Bayes, KNN, RNN]
+    for i, foo in enumerate(foo_list):
+        score, pred, target = foo()
+        createConfusionMatrix(pred, target)
+
+    plt.show()
+
 def Bayes(n=0.83):
     np.random.seed(0)
     train_data, train_classes, test_data, test_classes = CT.get_data_classwise(n=n)
@@ -22,26 +35,29 @@ def KNN(n_kmean=N_KMEAN,n_knn=N_KNN,cluster_centers=None,cluster_labels=None,plo
         if os.path.exists(KNN_MODEL_PATH[0]) and os.path.exists(KNN_MODEL_PATH[1]) :
             cluster_centers, cluster_labels =np.load(KNN_MODEL_PATH[0]),np.load(KNN_MODEL_PATH[1])
         else:
+            print('no clusters found')
             cluster_centers, cluster_labels = classifiers.full_kmean(n_kmean, train_data,
         train_classes,'Représentants des ' + f'{n_kmean}' + '-moy',CT.extent,plot=plot)
-    return classifiers.full_ppv(n_knn, cluster_centers, cluster_labels, CT.donneesTest,
+    score,pred,target= classifiers.full_ppv(n_knn, cluster_centers, cluster_labels, CT.donneesTest,
                          f'{n_knn}-PPV sur le ' + f'{n_kmean}' + '-moy', CT.extent, test_data,
-                         test_classes,plot=plot) , (cluster_centers, cluster_labels )
+                         test_classes,plot=plot)
+    return score, pred, target
 
 def RNN():
     np.random.seed(0)
     Quatres_data = CT.get_all_data()
     Quatres_labels = CT.class_labels
-
+    test_data, test_classes = CT.get_data_classwise(n=0.80)[2:4]
 
     ### Hyperparametres ###
     n_hidden_layers = 7
     n_neurons = 5
     ### --- ###
 
-    classifiers.full_nn(n_hiddenlayers = n_hidden_layers, n_neurons= n_neurons, train_data= Quatres_data, train_classes=Quatres_labels, test1=CT.donneesTest, title =f'NN {n_hidden_layers} layer(s) caché(s), {n_neurons} neurones par couche',
-                                extent = CT.extent,test2 = Quatres_data,classes2=Quatres_labels )
-
+    score, pred, target=classifiers.full_nn(n_hiddenlayers = n_hidden_layers, n_neurons= n_neurons, train_data= Quatres_data,
+            train_classes=Quatres_labels, test1=CT.donneesTest, title =f'NN {n_hidden_layers} layer(s) caché(s), {n_neurons} neurones par couche',
+                                extent = CT.extent,test2 = test_data,classes2=test_classes )
+    return score, pred, target
 
 
 # -------- recherche d'hyper-paramètres :
@@ -66,7 +82,4 @@ np.random.seed(0)
 CT = ClassesTracker()
 
 if __name__=='__main__':
-    Bayes()
-    # KNN()
-    RNN()
-    plt.show()
+    plotALlConfusionMaxtixes()

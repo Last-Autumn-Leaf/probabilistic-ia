@@ -251,6 +251,8 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
     classified = np.argmax(prob_dens, axis=1).reshape(len(donnee_test), 1)
     classified2 = np.argmax(prob_dens2, axis=1).reshape(test_classes.shape)
 
+    pred,target=classified2.copy(),test_classes.copy()
+
     # calcule le taux de classification moyen
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
     error_indexes = calc_erreur_classification(test_classes, classified2)
@@ -266,7 +268,7 @@ def full_Bayes_risk(train_data, train_classes, donnee_test, title, extent, test_
         an.view_classification_results(train_data, donnee_test, train_classes, classified / error_class / .75,
                                    f'Classification de Bayes, {title}', 'Données originales', 'Données aléatoires',
                                    extent, test_data, classified2 / error_class / .75, 'Données d\'origine reclassées')
-    return 100 * (1 - len(error_indexes) / len(classified2)) ,classified2,test_classes
+    return 100 * (1 - len(error_indexes) / len(classified2)) ,pred,target
 
 def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, datatest2=None, classestest2=None,plot=True):
     """
@@ -278,15 +280,8 @@ def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, d
     """
     predictions, predictions2 = ppv_classify(n_neighbors, train_data, train_classes.ravel(), datatest1, datatest2)
 
-    ### a commenter pour que le labo fonctionne ###
-    pred2 = np.expand_dims(predictions2, axis=1)
-    pred2 = pred2.astype('uint8')
-    confus_mat = confusion_matrix(target=classestest2, pred=pred2, n_classes=N_CLASSES)
-    print(f'confusion matrix = {confus_mat}')
-    ### --- ###
-
     predictions = predictions.reshape(len(datatest1), 1)
-
+    pred,target=predictions2.copy(),classestest2.copy()
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
     if np.asarray(datatest2).any():
         predictions2 = predictions2.reshape(len(datatest2), 1)
@@ -303,7 +298,7 @@ def full_ppv(n_neighbors, train_data, train_classes, datatest1, title, extent, d
                                    extent, datatest2, predictions2 / error_class / 0.75,
                                    f'Prédiction de {n_neighbors}-PPV, données originales')
     if np.asarray(datatest2).any():
-        return 100 * (1 - len(error_indexes) / len(classestest2))
+        return 100 * (1 - len(error_indexes) / len(classestest2)),pred,target
 
 def full_kmean(n_clusters, train_data, train_classes, title, extent,plot=True):
     """
@@ -334,19 +329,22 @@ def full_nn(n_hiddenlayers, n_neurons, train_data, train_classes, test1, title, 
     predictions, predictions2 = nn_classify(n_hiddenlayers, n_neurons, train_data, train_classes.ravel(), test1, test2)
 
     predictions = predictions.reshape(len(test1), 1)
-
+    pred, target=predictions2.copy(),classes2.copy()
     error_class = 6  # optionnel, assignation d'une classe différente à toutes les données en erreur, aide pour la visualisation
+    score=0
     if np.asarray(test2).any():
         predictions2 = predictions2.reshape(len(test2), 1)
         # calcul des points en erreur à l'échelle du système
         error_indexes = calc_erreur_classification(classes2, predictions2)
         predictions2[error_indexes] = error_class
-        print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {100 * (1 - len(error_indexes) / len(classes2))}%')
+        score=100 * (1 - len(error_indexes) / len(classes2))
+        print(f'Taux de classification moyen sur l\'ensemble des classes, {title}: {score}%')
     #  view_classification_results(train_data, test1, c1, c2, glob_title, title1, title2, extent, test2=None, c3=None, title3=None)
     an.view_classification_results(train_data, test1, train_classes, predictions, title, 'Données originales',
                                    f'Données aléatoires classées par le RNA',
                                    extent, test2, predictions2 / error_class / 0.75,
                                    f'Prédiction du RNA, données originales')
+    return score,pred, target
 
 
 def calc_erreur_classification(original_data, classified_data):

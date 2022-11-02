@@ -116,7 +116,7 @@ def AllGraphScatter(IC_obj, mode_list = [Lab,HSV], var_list = [d_mean_bin,d_pred
     fig.savefig('bruteforce.pdf')
     plt.show()
 
-def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=20):
+def bar_hist(mode=RGB,dim=d_mean_bin,dim_index=0,n_bin=100):
     IC = ImageCollection()
     IC.AjoutSubClasses()
 
@@ -293,4 +293,5 @@ def main():
 if __name__ == '__main__':
     # brute_force_bar()
     # main()
-    graphs2d()
+    bar_hist(dim=d_n_edges_sum)
+    plt.show()
