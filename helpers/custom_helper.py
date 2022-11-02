@@ -205,7 +205,8 @@ def arrange_train_data(train_data):
 
 PREVENT_OS_SORT = True
 def load_images():
-    image_folder = r"." + os.sep + "baseDeDonneesImages"
+    root=os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+    image_folder = root+ os.sep +r"problematique" + os.sep + "baseDeDonneesImages"
     _path = glob.glob(image_folder + os.sep + r"*.jpg")
     # To not be depedent of the OS-sort
     if PREVENT_OS_SORT:

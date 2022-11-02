@@ -1,7 +1,7 @@
 import math
 import itertools
 
-from ImageCollection import ImageCollection
+from problematique.ImageCollection import ImageCollection
 from helpers.custom_class import dimension, VariablesTracker, ClassesTracker
 from helpers.custom_helper import *
 from helpers.analysis import viewEllipse
